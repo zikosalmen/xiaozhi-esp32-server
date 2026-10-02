@@ -38,6 +38,9 @@
         </el-tooltip>
         <span v-else>{{ $t('home.chatHistory') }}</span>
       </div>
+      <div class="settings-btn robot-btn" @click="handleRobotControl" style="background: rgba(56, 189, 248, 0.15); color: #0284c7; border: 1px solid rgba(56, 189, 248, 0.4); font-weight: 500;">
+        <i class="el-icon-aim"></i> {{ $t('home.robotControl') || 'Robot' }}
+      </div>
     </div>
     <div class="version-info">
       <div>{{ $t('home.lastConversation') }}：{{ formattedLastConnectedTime }}</div>
@@ -112,6 +115,9 @@ export default {
         return
       }
       this.$emit('chat-history', { agentId: this.device.agentId, agentName: this.device.agentName })
+    },
+    handleRobotControl() {
+      this.$emit('robot-control', this.device);
     }
   },
 }

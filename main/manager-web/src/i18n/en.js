@@ -1684,4 +1684,28 @@ export default {
   // Header navigation
   'header.addressBook': 'Address Book',
 
+
+  // Robot & Language extensions
+  'language.fr': 'Français',
+  'language.ar': 'العربية',
+  'header.robotControl': 'Robot Control',
+  'home.robotControl': 'Robot',
+  'robot.title': 'Robot Motor Control',
+  'robot.forward': 'Forward',
+  'robot.backward': 'Backward',
+  'robot.left': 'Turn Left',
+  'robot.right': 'Turn Right',
+  'robot.stop': 'STOP',
+  'robot.speed': 'Motor Speed',
+  'robot.duration': 'Step Duration',
+  'robot.continuous': 'Continuous',
+  'robot.status': 'Status',
+  'robot.movingForward': 'Moving Forward',
+  'robot.movingBackward': 'Moving Backward',
+  'robot.turningLeft': 'Turning Left',
+  'robot.turningRight': 'Turning Right',
+  'robot.stopped': 'Motors Stopped',
+  'robot.keyboardTip': 'Use Arrow keys or W/A/S/D to move, Space to stop',
+  'robot.commandSent': 'Command sent successfully',
+  'robot.commandError': 'Failed to send command',
 }

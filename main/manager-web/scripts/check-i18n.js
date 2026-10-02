@@ -6,6 +6,8 @@ const locales = [
   { name: 'zh_CN', file: 'src/i18n/zh_CN.js' },
   { name: 'zh_TW', file: 'src/i18n/zh_TW.js' },
   { name: 'en', file: 'src/i18n/en.js' },
+  { name: 'fr', file: 'src/i18n/fr.js' },
+  { name: 'ar', file: 'src/i18n/ar.js' },
   { name: 'de', file: 'src/i18n/de.js' },
   { name: 'vi', file: 'src/i18n/vi.js' },
   { name: 'pt_BR', file: 'src/i18n/pt_BR.js' },

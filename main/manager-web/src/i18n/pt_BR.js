@@ -1684,4 +1684,28 @@ export default {
   // Header navigation
   'header.addressBook': 'Lista de Contatos',
 
+
+  // Robot & Language extensions
+  'language.fr': 'Francês',
+  'language.ar': 'Árabe',
+  'header.robotControl': 'Controle do Robô',
+  'home.robotControl': 'Robô',
+  'robot.title': 'Controle de Motores do Robô',
+  'robot.forward': 'Avançar',
+  'robot.backward': 'Recuar',
+  'robot.left': 'Esquerda',
+  'robot.right': 'Direita',
+  'robot.stop': 'PARAR',
+  'robot.speed': 'Velocidade',
+  'robot.duration': 'Duração do passo',
+  'robot.continuous': 'Contínuo',
+  'robot.status': 'Status',
+  'robot.movingForward': 'Avançando',
+  'robot.movingBackward': 'Recuando',
+  'robot.turningLeft': 'Virando à esquerda',
+  'robot.turningRight': 'Virando à direita',
+  'robot.stopped': 'Motores parados',
+  'robot.keyboardTip': 'Use as setas ou W/A/S/D para mover, Espaço para parar',
+  'robot.commandSent': 'Comando enviado com sucesso',
+  'robot.commandError': 'Falha ao enviar comando',
 }

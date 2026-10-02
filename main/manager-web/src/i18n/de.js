@@ -1684,4 +1684,28 @@ export default {
   // Header navigation
   'header.addressBook': 'Adressbuch',
 
+
+  // Robot & Language extensions
+  'language.fr': 'Französisch',
+  'language.ar': 'Arabisch',
+  'header.robotControl': 'Robotersteuerung',
+  'home.robotControl': 'Roboter',
+  'robot.title': 'Roboter Motorsteuerung',
+  'robot.forward': 'Vorwärts',
+  'robot.backward': 'Rückwärts',
+  'robot.left': 'Links',
+  'robot.right': 'Rechts',
+  'robot.stop': 'STOPP',
+  'robot.speed': 'Motorgeschwindigkeit',
+  'robot.duration': 'Schrittdauer',
+  'robot.continuous': 'Kontinuierlich',
+  'robot.status': 'Status',
+  'robot.movingForward': 'Fährt vorwärts',
+  'robot.movingBackward': 'Fährt rückwärts',
+  'robot.turningLeft': 'Dreht links',
+  'robot.turningRight': 'Dreht rechts',
+  'robot.stopped': 'Motoren gestoppt',
+  'robot.keyboardTip': 'Pfeiltasten oder W/A/S/D zum Fahren, Leertaste zum Stoppen',
+  'robot.commandSent': 'Befehl erfolgreich gesendet',
+  'robot.commandError': 'Fehler beim Senden des Befehls',
 }

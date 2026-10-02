@@ -67,6 +67,92 @@ class WebSocketServer:
         secret_key = self.config["server"]["auth_key"]
         expire_seconds = auth_config.get("expire_seconds", None)
         self.auth = AuthManager(secret_key=secret_key, expire_seconds=expire_seconds)
+        self.active_connections = {}
+
+    def register_connection(self, device_id: str, handler):
+        self.active_connections[device_id] = handler
+        self.logger.bind(tag=TAG).info(
+            f"ESP32 client registered: {device_id} (Total active: {len(self.active_connections)})"
+        )
+
+    def unregister_connection(self, device_id: str):
+        if device_id in self.active_connections:
+            del self.active_connections[device_id]
+            self.logger.bind(tag=TAG).info(
+                f"ESP32 client unregistered: {device_id} (Total active: {len(self.active_connections)})"
+            )
+
+    async def send_robot_command(
+        self,
+        direction: str,
+        speed: int = 80,
+        duration_ms: int = 1500,
+        device_id: str = None,
+    ) -> dict:
+        """向已连接的 ESP32 发送底盘电机控制指令"""
+        import json
+
+        is_stop = direction == "stop"
+        command = {
+            "type": "iot",
+            "commands": [
+                {
+                    "name": "robot",
+                    "method": "stop" if is_stop else "move",
+                    "parameters": {}
+                    if is_stop
+                    else {
+                        "direction": direction,
+                        "speed": speed,
+                        "duration_ms": duration_ms,
+                    },
+                }
+            ],
+        }
+        payload_str = json.dumps(command)
+        sent_count = 0
+        errors = []
+
+        targets = []
+        if device_id and device_id in self.active_connections:
+            targets = [self.active_connections[device_id]]
+        else:
+            targets = list(self.active_connections.values())
+
+        for conn in targets:
+            try:
+                # 1. 尝试 MCP
+                if hasattr(conn, "mcp_client") and conn.mcp_client:
+                    from core.providers.tools.device_mcp import call_mcp_tool
+
+                    tool_name = "self_robot_stop" if is_stop else "self_robot_move"
+                    if conn.mcp_client.has_tool(tool_name):
+                        params = (
+                            {}
+                            if is_stop
+                            else {
+                                "direction": direction,
+                                "speed": speed,
+                                "duration_ms": duration_ms,
+                            }
+                        )
+                        await call_mcp_tool(conn, tool_name, params)
+                        sent_count += 1
+                        continue
+
+                # 2. WebSocket 发送
+                if conn.websocket and hasattr(conn.websocket, "send"):
+                    await conn.websocket.send(payload_str)
+                    sent_count += 1
+            except Exception as e:
+                errors.append(str(e))
+                self.logger.bind(tag=TAG).error(f"发送机器人指令失败: {e}")
+
+        return {
+            "sent_count": sent_count,
+            "total_clients": len(self.active_connections),
+            "errors": errors,
+        }
 
     async def start(self):
         server_config = self.config["server"]
@@ -109,6 +195,8 @@ class WebSocketServer:
                     "authorization"
                 ][0]
 
+        dev_id = websocket.request.headers.get("device-id", f"ws-{id(websocket)}")
+
         """处理新连接，每次创建独立的ConnectionHandler"""
         # 先认证，后建立连接
         try:
@@ -127,11 +215,13 @@ class WebSocketServer:
             self._intent,
             self,  # 传入server实例
         )
+        self.register_connection(dev_id, handler)
         try:
             await handler.handle_connection(websocket)
         except Exception as e:
             self.logger.bind(tag=TAG).error(f"处理连接时出错: {e}")
         finally:
+            self.unregister_connection(dev_id)
             # 强制关闭连接（如果还没有关闭的话）
             try:
                 # 安全地检查WebSocket状态并关闭

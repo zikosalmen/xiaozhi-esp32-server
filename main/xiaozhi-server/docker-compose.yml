@@ -27,6 +27,9 @@ services:
       - ./data:/opt/xiaozhi-esp32-server/data
       # Fonctions personnalisées (robot_control.py, etc.)
       - ./plugins_func:/opt/xiaozhi-esp32-server/plugins_func
+      # Core et serveur HTTP/WebSocket (commandes robot, etc.)
+      - ./core:/opt/xiaozhi-esp32-server/core
+      - ./app.py:/opt/xiaozhi-esp32-server/app.py
 
   # ===== Dashboard Web (智控台) - port 8002 =====
   hbiba-esp32-server-web:

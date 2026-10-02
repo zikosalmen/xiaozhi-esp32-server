@@ -92,6 +92,12 @@
           }" />
           <span class="nav-text">{{ $t("header.addressBook") }}</span>
         </div>
+
+        <!-- Contrôle Robot (Flèches / Moteurs) -->
+        <div class="equipment-management" @click="isRobotControlVisible = true" style="cursor: pointer;">
+          <i class="el-icon-aim" style="font-size: 20px; margin-right: 6px; color: #38bdf8;"></i>
+          <span class="nav-text">{{ $t("header.robotControl") || "Robot" }}</span>
+        </div>
         <el-dropdown v-if="userInfo.superAdmin" trigger="click" class="equipment-management more-dropdown" :class="{
           'active-tab':
             $route.path === '/dict-management' ||
@@ -173,6 +179,8 @@
 
     <!-- 修改密码弹窗 -->
     <ChangePasswordDialog v-model="isChangePasswordDialogVisible" />
+    <!-- Contrôle Robot Moteurs -->
+    <RobotControlDialog :visible.sync="isRobotControlVisible" />
   </el-header>
 </template>
 
@@ -181,17 +189,20 @@ import i18n, { changeLanguage } from "@/i18n";
 import featureManager from "@/utils/featureManager"; // 引入功能管理工具类
 import { mapActions, mapState } from "vuex";
 import ChangePasswordDialog from "./ChangePasswordDialog.vue"; // 引入修改密码弹窗组件
+import RobotControlDialog from "./RobotControlDialog.vue"; // 机器人电机控制组件
 
 export default {
   name: "HeaderBar",
   components: {
     ChangePasswordDialog,
+    RobotControlDialog,
   },
   props: ["devices"], // 接收父组件设备列表
   data() {
     return {
       search: "",
       isChangePasswordDialogVisible: false, // 控制修改密码弹窗的显示
+      isRobotControlVisible: false, // 控制机器人控制弹窗的显示
       paramDropdownVisible: false,
       voiceCloneDropdownVisible: false,
       userMenuVisible: false, // 添加用户菜单可见状态
@@ -240,12 +251,16 @@ export default {
     currentLanguageText() {
       const currentLang = this.currentLanguage;
       switch (currentLang) {
+        case "en":
+          return this.$t("language.en");
+        case "fr":
+          return this.$t("language.fr");
+        case "ar":
+          return this.$t("language.ar");
         case "zh_CN":
           return this.$t("language.zhCN");
         case "zh_TW":
           return this.$t("language.zhTW");
-        case "en":
-          return this.$t("language.en");
         case "de":
           return this.$t("language.de");
         case "vi":
@@ -253,7 +268,7 @@ export default {
         case "pt_BR":
           return this.$t("language.ptBR");
         default:
-          return this.$t("language.zhCN");
+          return this.$t("language.en");
       }
     },
     // 根据当前语言获取对应的xiaozhi-ai图标
@@ -265,6 +280,8 @@ export default {
         case "zh_TW":
           return require("@/assets/xiaozhi-ai_zh_TW.png");
         case "en":
+        case "fr":
+        case "ar":
           return require("@/assets/xiaozhi-ai_en.png");
         case "de":
           return require("@/assets/xiaozhi-ai_de.png");
@@ -284,16 +301,24 @@ export default {
           value: "language",
           children: [
             {
+              label: this.$t("language.en"),
+              value: "en",
+            },
+            {
+              label: this.$t("language.fr"),
+              value: "fr",
+            },
+            {
+              label: this.$t("language.ar"),
+              value: "ar",
+            },
+            {
               label: this.$t("language.zhCN"),
               value: "zh_CN",
             },
             {
               label: this.$t("language.zhTW"),
               value: "zh_TW",
-            },
-            {
-              label: this.$t("language.en"),
-              value: "en",
             },
             {
               label: this.$t("language.de"),

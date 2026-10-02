@@ -1684,4 +1684,28 @@ export default {
   'addressBookManagement.monthsAgo': '{months}個月前',
   'addressBookManagement.yearsAgo': '{years}年前',
 
+
+  // Robot & Language extensions
+  'language.fr': '法語',
+  'language.ar': '阿拉伯語',
+  'header.robotControl': '機器人控制',
+  'home.robotControl': '機器人',
+  'robot.title': '機器人電機控制',
+  'robot.forward': '前進',
+  'robot.backward': '後退',
+  'robot.left': '左轉',
+  'robot.right': '右轉',
+  'robot.stop': '停止',
+  'robot.speed': '電機速度',
+  'robot.duration': '運動步長',
+  'robot.continuous': '持續運動',
+  'robot.status': '運行狀態',
+  'robot.movingForward': '正在前進',
+  'robot.movingBackward': '正在後退',
+  'robot.turningLeft': '正在左轉',
+  'robot.turningRight': '正在右轉',
+  'robot.stopped': '電機已停止',
+  'robot.keyboardTip': '支持鍵盤方向鍵或 W/A/S/D 控制，空格鍵緊急停止',
+  'robot.commandSent': '指令發送成功',
+  'robot.commandError': '指令發送失敗',
 }

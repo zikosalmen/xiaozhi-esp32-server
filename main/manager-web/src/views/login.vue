@@ -40,14 +40,20 @@
                 <i class="el-icon-arrow-down el-icon--right" :class="{ 'rotate-down': languageDropdownVisible }"></i>
               </span>
               <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item @click.native="changeLanguage('en')">
+                  {{ $t("language.en") }}
+                </el-dropdown-item>
+                <el-dropdown-item @click.native="changeLanguage('fr')">
+                  {{ $t("language.fr") }}
+                </el-dropdown-item>
+                <el-dropdown-item @click.native="changeLanguage('ar')">
+                  {{ $t("language.ar") }}
+                </el-dropdown-item>
                 <el-dropdown-item @click.native="changeLanguage('zh_CN')">
                   {{ $t("language.zhCN") }}
                 </el-dropdown-item>
                 <el-dropdown-item @click.native="changeLanguage('zh_TW')">
                   {{ $t("language.zhTW") }}
-                </el-dropdown-item>
-                <el-dropdown-item @click.native="changeLanguage('en')">
-                  {{ $t("language.en") }}
                 </el-dropdown-item>
                 <el-dropdown-item @click.native="changeLanguage('de')">
                   {{ $t("language.de") }}
@@ -168,12 +174,16 @@ export default {
     currentLanguageText() {
       const currentLang = this.currentLanguage;
       switch (currentLang) {
+        case "en":
+          return this.$t("language.en");
+        case "fr":
+          return this.$t("language.fr");
+        case "ar":
+          return this.$t("language.ar");
         case "zh_CN":
           return this.$t("language.zhCN");
         case "zh_TW":
           return this.$t("language.zhTW");
-        case "en":
-          return this.$t("language.en");
         case "de":
           return this.$t("language.de");
         case "vi":
@@ -181,7 +191,7 @@ export default {
         case "pt_BR":
           return this.$t("language.ptBR");
         default:
-          return this.$t("language.zhCN");
+          return this.$t("language.en");
       }
     },
     // 根据当前语言获取对应的xiaozhi-ai图标
@@ -193,6 +203,10 @@ export default {
         case "zh_TW":
           return require("@/assets/xiaozhi-ai_zh_TW.png");
         case "en":
+        case "fr":
+        case "ar":
+          return require("@/assets/xiaozhi-ai_en.png");
+        case "de":
           return require("@/assets/xiaozhi-ai_en.png");
         case "de":
           return require("@/assets/xiaozhi-ai_de.png");

@@ -3,16 +3,18 @@ from aiohttp import web
 from config.logger import setup_logging
 from core.api.ota_handler import OTAHandler
 from core.api.vision_handler import VisionHandler
+from core.api.robot_handler import RobotHandler
 
 TAG = __name__
 
 
 class SimpleHttpServer:
-    def __init__(self, config: dict):
+    def __init__(self, config: dict, ws_server=None):
         self.config = config
         self.logger = setup_logging()
         self.ota_handler = OTAHandler(config)
         self.vision_handler = VisionHandler(config)
+        self.robot_handler = RobotHandler(config, ws_server)
 
     def _get_websocket_url(self, local_ip: str, port: int) -> str:
         """获取websocket地址
@@ -72,6 +74,13 @@ class SimpleHttpServer:
                         web.options(
                             "/mcp/vision/explain", self.vision_handler.handle_options
                         ),
+                        # 机器人电机控制接口 (Robot motor control API)
+                        web.post("/xiaozhi/robot/move", self.robot_handler.handle_move),
+                        web.options("/xiaozhi/robot/move", self.robot_handler.handle_options),
+                        web.post("/xiaozhi/robot/stop", self.robot_handler.handle_stop),
+                        web.options("/xiaozhi/robot/stop", self.robot_handler.handle_options),
+                        web.get("/xiaozhi/robot/status", self.robot_handler.handle_status),
+                        web.options("/xiaozhi/robot/status", self.robot_handler.handle_options),
                     ]
                 )
 

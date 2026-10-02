@@ -55,6 +55,9 @@
                   @change="handleOtaSwitchChange(scope.row)"></el-switch>
               </template>
               <template slot="operations" slot-scope="scope">
+                <el-button size="mini" type="text" style="color: #0284c7;" @click="handleRobotControl(scope.row)">
+                  <i class="el-icon-aim"></i> {{ $t('header.robotControl') || 'Robot' }}
+                </el-button>
                 <el-button size="mini" type="text" @click="handleUnbind(scope.row.device_id)">
                   {{ $t('device.unbind') }}
                 </el-button>
@@ -88,6 +91,7 @@
       @refresh="fetchBindDevices(currentAgentId)" />
     <ManualAddDeviceDialog :visible.sync="manualAddDeviceDialogVisible" :agent-id="currentAgentId"
       @refresh="fetchBindDevices(currentAgentId)" />
+    <RobotControlDialog :visible.sync="showRobotControl" :device-id="selectedRobotDeviceId" />
     <el-footer>
       <version-footer />
     </el-footer>
@@ -103,6 +107,7 @@ import VersionFooter from "@/components/VersionFooter.vue";
 import MacAddressMask from "@/components/MacAddressMask.vue";
 import CustomButton from "@/components/CustomButton.vue";
 import CustomTable from "@/components/CustomTable.vue";
+import RobotControlDialog from "@/components/RobotControlDialog.vue";
 import {
   compareTimestamps,
   formatCreateDate,
@@ -121,11 +126,14 @@ export default {
     MacAddressMask,
     CustomButton,
     CustomTable,
+    RobotControlDialog,
   },
   data() {
     return {
       addDeviceDialogVisible: false,
       manualAddDeviceDialogVisible: false,
+      showRobotControl: false,
+      selectedRobotDeviceId: '',
       selectedDeviceId: '',
       searchKeyword: "",
       activeSearchKeyword: "",
@@ -368,6 +376,11 @@ export default {
           this.$message.error(data.msg || this.$t('device.getListFailed'));
         }
       });
+    },
+
+    handleRobotControl(row) {
+      this.selectedRobotDeviceId = (row && (row.device_id || row.id || row.macAddress)) || '';
+      this.showRobotControl = true;
     },
 
     fetchDeviceStatus(agentId) {

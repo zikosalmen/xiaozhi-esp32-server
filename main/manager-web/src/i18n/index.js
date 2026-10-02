@@ -3,17 +3,20 @@ import VueI18n from 'vue-i18n';
 import zhCN from './zh_CN';
 import zhTW from './zh_TW';
 import en from './en';
+import fr from './fr';
+import ar from './ar';
 import de from './de';
 import vi from './vi';
 import ptBR from './pt_BR';
 
 import enLocale from 'element-ui/lib/locale/lang/en'
+import frLocale from 'element-ui/lib/locale/lang/fr'
+import arLocale from 'element-ui/lib/locale/lang/ar'
 import zhLocale from 'element-ui/lib/locale/lang/zh-CN'
 import twLocale from 'element-ui/lib/locale/lang/zh-TW'
 import deLocale from 'element-ui/lib/locale/lang/de'
 import viLocale from 'element-ui/lib/locale/lang/vi'
 import ptBRLocale from 'element-ui/lib/locale/lang/pt-br'
-
 
 Vue.use(VueI18n);
 
@@ -23,7 +26,13 @@ const getDefaultLanguage = () => {
   if (savedLang) {
     return savedLang;
   }
-  const browserLang = navigator.language || navigator.userLanguage;
+  const browserLang = navigator.language || navigator.userLanguage || '';
+  if (browserLang.indexOf('fr') === 0) {
+    return 'fr';
+  }
+  if (browserLang.indexOf('ar') === 0) {
+    return 'ar';
+  }
   if (browserLang.indexOf('zh') === 0) {
     if (browserLang === 'zh-TW' || browserLang === 'zh-HK' || browserLang === 'zh-MO') {
       return 'zh_TW';
@@ -42,13 +51,24 @@ const getDefaultLanguage = () => {
   return 'en';
 };
 
+const initialLang = getDefaultLanguage();
+if (typeof document !== 'undefined') {
+  if (initialLang === 'ar') {
+    document.documentElement.setAttribute('dir', 'rtl');
+  } else {
+    document.documentElement.setAttribute('dir', 'ltr');
+  }
+}
+
 const i18n = new VueI18n({
-  locale: getDefaultLanguage(),
-  fallbackLocale: 'zh_CN',
+  locale: initialLang,
+  fallbackLocale: 'en',
   messages: {
+    'en': { ...en, ...enLocale },
+    'fr': { ...frLocale, ...fr },
+    'ar': { ...arLocale, ...ar },
     'zh_CN': { ...zhLocale, ...zhCN },
     'zh_TW': { ...twLocale, ...zhTW },
-    'en': { ...en, ...enLocale },
     'de': { ...de, ...deLocale },
     'vi': { ...vi, ...viLocale },
     'pt_BR': { ...ptBR, ...ptBRLocale }
@@ -61,6 +81,13 @@ export default i18n;
 export const changeLanguage = (lang) => {
   i18n.locale = lang;
   localStorage.setItem('userLanguage', lang);
+  if (typeof document !== 'undefined') {
+    if (lang === 'ar') {
+      document.documentElement.setAttribute('dir', 'rtl');
+    } else {
+      document.documentElement.setAttribute('dir', 'ltr');
+    }
+  }
   // 通知组件语言已更改
   Vue.prototype.$eventBus.$emit('languageChanged', lang);
 };

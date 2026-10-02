@@ -1684,4 +1684,28 @@ export default {
   // Header navigation
   'header.addressBook': 'Danh bạ',
 
+
+  // Robot & Language extensions
+  'language.fr': 'Tiếng Pháp',
+  'language.ar': 'Tiếng Ả Rập',
+  'header.robotControl': 'Điều khiển Robot',
+  'home.robotControl': 'Robot',
+  'robot.title': 'Điều khiển Động cơ Robot',
+  'robot.forward': 'Tiến',
+  'robot.backward': 'Lùi',
+  'robot.left': 'Rẽ trái',
+  'robot.right': 'Rẽ phải',
+  'robot.stop': 'DỪNG',
+  'robot.speed': 'Tốc độ động cơ',
+  'robot.duration': 'Thời gian bước',
+  'robot.continuous': 'Liên tục',
+  'robot.status': 'Trạng thái',
+  'robot.movingForward': 'Đang tiến',
+  'robot.movingBackward': 'Đang lùi',
+  'robot.turningLeft': 'Đang rẽ trái',
+  'robot.turningRight': 'Đang rẽ phải',
+  'robot.stopped': 'Động cơ đã dừng',
+  'robot.keyboardTip': 'Dùng phím mũi tên hoặc W/A/S/D để điều khiển, Phím cách để dừng',
+  'robot.commandSent': 'Đã gửi lệnh thành công',
+  'robot.commandError': 'Gửi lệnh thất bại',
 }
