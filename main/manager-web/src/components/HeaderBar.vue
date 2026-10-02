@@ -245,53 +245,24 @@ export default {
     }),
     // 获取当前语言
     currentLanguage() {
-      return i18n.locale || "zh_CN";
+      return i18n.locale || "en";
     },
     // 获取当前语言显示文本
     currentLanguageText() {
       const currentLang = this.currentLanguage;
       switch (currentLang) {
-        case "en":
-          return this.$t("language.en");
         case "fr":
-          return this.$t("language.fr");
+          return this.$t("language.fr") || "Français";
         case "ar":
-          return this.$t("language.ar");
-        case "zh_CN":
-          return this.$t("language.zhCN");
-        case "zh_TW":
-          return this.$t("language.zhTW");
-        case "de":
-          return this.$t("language.de");
-        case "vi":
-          return this.$t("language.vi");
-        case "pt_BR":
-          return this.$t("language.ptBR");
+          return this.$t("language.ar") || "العربية";
+        case "en":
         default:
-          return this.$t("language.en");
+          return this.$t("language.en") || "English";
       }
     },
     // 根据当前语言获取对应的xiaozhi-ai图标
     xiaozhiAiIcon() {
-      const currentLang = this.currentLanguage;
-      switch (currentLang) {
-        case "zh_CN":
-          return require("@/assets/xiaozhi-ai.png");
-        case "zh_TW":
-          return require("@/assets/xiaozhi-ai_zh_TW.png");
-        case "en":
-        case "fr":
-        case "ar":
-          return require("@/assets/xiaozhi-ai_en.png");
-        case "de":
-          return require("@/assets/xiaozhi-ai_de.png");
-        case "vi":
-          return require("@/assets/xiaozhi-ai_vi.png");
-        case "pt_BR":
-          return require("@/assets/xiaozhi-ai_en.png");
-        default:
-          return require("@/assets/xiaozhi-ai.png");
-      }
+      return require("@/assets/xiaozhi-ai_en.png");
     },
     // 用户菜单选项
     userMenuOptions() {
@@ -301,36 +272,16 @@ export default {
           value: "language",
           children: [
             {
-              label: this.$t("language.en"),
+              label: this.$t("language.en") || "English",
               value: "en",
             },
             {
-              label: this.$t("language.fr"),
+              label: this.$t("language.fr") || "Français",
               value: "fr",
             },
             {
-              label: this.$t("language.ar"),
+              label: this.$t("language.ar") || "العربية",
               value: "ar",
-            },
-            {
-              label: this.$t("language.zhCN"),
-              value: "zh_CN",
-            },
-            {
-              label: this.$t("language.zhTW"),
-              value: "zh_TW",
-            },
-            {
-              label: this.$t("language.de"),
-              value: "de",
-            },
-            {
-              label: this.$t("language.vi"),
-              value: "vi",
-            },
-            {
-              label: this.$t("language.ptBR"),
-              value: "pt_BR",
             },
           ],
         },

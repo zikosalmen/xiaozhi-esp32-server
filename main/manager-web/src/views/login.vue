@@ -41,28 +41,13 @@
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item @click.native="changeLanguage('en')">
-                  {{ $t("language.en") }}
+                  {{ $t("language.en") || "English" }}
                 </el-dropdown-item>
                 <el-dropdown-item @click.native="changeLanguage('fr')">
-                  {{ $t("language.fr") }}
+                  {{ $t("language.fr") || "Français" }}
                 </el-dropdown-item>
                 <el-dropdown-item @click.native="changeLanguage('ar')">
-                  {{ $t("language.ar") }}
-                </el-dropdown-item>
-                <el-dropdown-item @click.native="changeLanguage('zh_CN')">
-                  {{ $t("language.zhCN") }}
-                </el-dropdown-item>
-                <el-dropdown-item @click.native="changeLanguage('zh_TW')">
-                  {{ $t("language.zhTW") }}
-                </el-dropdown-item>
-                <el-dropdown-item @click.native="changeLanguage('de')">
-                  {{ $t("language.de") }}
-                </el-dropdown-item>
-                <el-dropdown-item @click.native="changeLanguage('vi')">
-                  {{ $t("language.vi") }}
-                </el-dropdown-item>
-                <el-dropdown-item @click.native="changeLanguage('pt_BR')">
-                  {{ $t("language.ptBR") }}
+                  {{ $t("language.ar") || "العربية" }}
                 </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
@@ -168,53 +153,24 @@ export default {
     }),
     // 获取当前语言
     currentLanguage() {
-      return i18n.locale || "zh_CN";
+      return i18n.locale || "en";
     },
     // 获取当前语言显示文本
     currentLanguageText() {
       const currentLang = this.currentLanguage;
       switch (currentLang) {
-        case "en":
-          return this.$t("language.en");
         case "fr":
-          return this.$t("language.fr");
+          return this.$t("language.fr") || "Français";
         case "ar":
-          return this.$t("language.ar");
-        case "zh_CN":
-          return this.$t("language.zhCN");
-        case "zh_TW":
-          return this.$t("language.zhTW");
-        case "de":
-          return this.$t("language.de");
-        case "vi":
-          return this.$t("language.vi");
-        case "pt_BR":
-          return this.$t("language.ptBR");
+          return this.$t("language.ar") || "العربية";
+        case "en":
         default:
-          return this.$t("language.en");
+          return this.$t("language.en") || "English";
       }
     },
     // 根据当前语言获取对应的xiaozhi-ai图标
     xiaozhiAiIcon() {
-      const currentLang = this.currentLanguage;
-      switch (currentLang) {
-        case "zh_CN":
-          return require("@/assets/xiaozhi-ai.png");
-        case "zh_TW":
-          return require("@/assets/xiaozhi-ai_zh_TW.png");
-        case "en":
-        case "fr":
-        case "ar":
-          return require("@/assets/xiaozhi-ai_en.png");
-        case "de":
-          return require("@/assets/xiaozhi-ai_en.png");
-        case "de":
-          return require("@/assets/xiaozhi-ai_de.png");
-        case "vi":
-          return require("@/assets/xiaozhi-ai_vi.png");
-        default:
-          return require("@/assets/xiaozhi-ai.png");
-      }
+      return require("@/assets/xiaozhi-ai_en.png");
     },
   },
   data() {

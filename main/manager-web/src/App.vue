@@ -2,6 +2,7 @@
   <div id="app">
     <router-view />
     <cache-viewer v-if="isCDNEnabled" :visible.sync="showCacheViewer" />
+    <RobotControlWidget />
   </div>
 </template>
 
@@ -46,12 +47,14 @@ nav {
 </style>
 <script>
 import CacheViewer from '@/components/CacheViewer.vue';
+import RobotControlWidget from '@/components/RobotControlWidget.vue';
 import { logCacheStatus } from '@/utils/cacheViewer';
 
 export default {
   name: 'App',
   components: {
-    CacheViewer
+    CacheViewer,
+    RobotControlWidget
   },
   data() {
     return {
