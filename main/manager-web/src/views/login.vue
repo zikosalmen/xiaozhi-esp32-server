@@ -88,20 +88,7 @@
               <el-input v-model="form.password" :placeholder="$t('login.passwordPlaceholder')" type="password"
                 show-password />
             </div>
-            <div style="
-                display: flex;
-                align-items: center;
-                margin-top: 20px;
-                width: 100%;
-                gap: 10px;
-              ">
-              <div class="input-box" style="width: calc(100% - 130px); margin-top: 0">
-                <img loading="lazy" alt="" class="input-icon" src="@/assets/login/shield.png" />
-                <el-input v-model="form.captcha" :placeholder="$t('login.captchaPlaceholder')" style="flex: 1" />
-              </div>
-              <img loading="lazy" v-if="captchaUrl" :src="captchaUrl" alt="验证码"
-                style="width: 150px; height: 40px; cursor: pointer" @click="fetchCaptcha" />
-            </div>
+            <!-- Captcha field hidden - auto-generated -->
             <div style="
                 font-weight: 400;
                 font-size: 14px;
@@ -249,7 +236,7 @@ export default {
       window.open(url, '_blank');
     },
     fetchCaptcha() {
-      // 处理手动清空localstorage导致无法获取验证码的问题
+      // Captcha validation disabled - auto-generate random value
       const token = localStorage.getItem('token')
       if (token) {
         if (this.$route.path !== "/home") {
@@ -257,15 +244,13 @@ export default {
         }
       } else {
         this.captchaUuid = getUUID();
-
-        Api.user.getCaptcha(this.captchaUuid, (res) => {
-          if (res.status === 200) {
-            const blob = new Blob([res.data], { type: res.data.type });
-            this.captchaUrl = URL.createObjectURL(blob);
-          } else {
-            showDanger("验证码加载失败，点击刷新");
-          }
-        });
+        // Auto-generate a random 5-char captcha (validation bypassed on backend)
+        const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let randomCaptcha = '';
+        for (let i = 0; i < 5; i++) {
+          randomCaptcha += chars[Math.floor(Math.random() * chars.length)];
+        }
+        this.form.captcha = randomCaptcha;
       }
     },
 
@@ -335,10 +320,7 @@ export default {
       if (!this.validateInput(this.form.password, 'login.requiredPassword')) {
         return;
       }
-      // 验证验证码
-      if (!this.validateInput(this.form.captcha, 'login.requiredCaptcha')) {
-        return;
-      }
+      // Captcha validation disabled
       // 加密密码
       let encryptedPassword;
       try {

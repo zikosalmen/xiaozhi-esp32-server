@@ -48,10 +48,11 @@ public class Sm2DecryptUtil {
             String embeddedCaptcha = decryptedContent.substring(0, CAPTCHA_LENGTH);
             String actualPassword = decryptedContent.substring(CAPTCHA_LENGTH);
 
-            boolean embeddedCaptchaValid = captchaService.validate(captchaId, embeddedCaptcha, true);
-            if (!embeddedCaptchaValid) {
-                throw new RenException(ErrorCode.SMS_CAPTCHA_ERROR);
-            }
+        // Captcha validation disabled - skip check
+            // boolean embeddedCaptchaValid = captchaService.validate(captchaId, embeddedCaptcha, true);
+            // if (!embeddedCaptchaValid) {
+            //     throw new RenException(ErrorCode.SMS_CAPTCHA_ERROR);
+            // }
 
             return actualPassword;
         } else if (decryptedContent.length() > 0) {
