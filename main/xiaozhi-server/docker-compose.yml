@@ -1,22 +1,94 @@
-# Docker安装Server
+# Docker安装全模块 - Hbiba ESP32 Server
 
-version: '3'
 services:
+  # ===== Server IA principal (Hbiba) =====
   hbiba-esp32-server:
     image: ghcr.io/xinnan-tech/xiaozhi-esp32-server:server_latest
     container_name: hbiba-esp32-server
+    depends_on:
+      hbiba-esp32-server-db:
+        condition: service_healthy
+      hbiba-esp32-server-redis:
+        condition: service_healthy
     restart: always
+    networks:
+      - default
+    ports:
+      # WebSocket principal
+      - "8000:8000"
+      # HTTP (OTA + vision)
+      - "8003:8003"
     security_opt:
       - seccomp:unconfined
     environment:
       - TZ=UTC
-    ports:
-      # ws服务端
-      - "8000:8000"
-      # http服务的端口，用于简单OTA接口(单服务部署)，以及视觉分析接口
-      - "8003:8003"
     volumes:
-      # 配置文件目录
+      # Fichiers de configuration
       - ./data:/opt/xiaozhi-esp32-server/data
-      # Fonctions personnalisées (ex: robot_control.py)
+      # Fonctions personnalisées (robot_control.py, etc.)
       - ./plugins_func:/opt/xiaozhi-esp32-server/plugins_func
+
+  # ===== Dashboard Web (智控台) - port 8002 =====
+  hbiba-esp32-server-web:
+    image: ghcr.io/xinnan-tech/xiaozhi-esp32-server:web_latest
+    container_name: hbiba-esp32-server-web
+    restart: always
+    networks:
+      - default
+    depends_on:
+      hbiba-esp32-server-db:
+        condition: service_healthy
+      hbiba-esp32-server-redis:
+        condition: service_healthy
+    ports:
+      - "8002:8002"
+    environment:
+      - TZ=UTC
+      - SPRING_DATASOURCE_DRUID_URL=jdbc:mysql://hbiba-esp32-server-db:3306/xiaozhi_esp32_server?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&nullCatalogMeansCurrent=true&connectTimeout=30000&socketTimeout=30000&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
+      - SPRING_DATASOURCE_DRUID_USERNAME=root
+      - SPRING_DATASOURCE_DRUID_PASSWORD=Hbiba@2026!
+      - SPRING_DATA_REDIS_HOST=hbiba-esp32-server-redis
+      - SPRING_DATA_REDIS_PASSWORD=
+      - SPRING_DATA_REDIS_PORT=6379
+    volumes:
+      - ./uploadfile:/uploadfile
+
+  # ===== Base de données MySQL =====
+  hbiba-esp32-server-db:
+    image: mysql:latest
+    container_name: hbiba-esp32-server-db
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+    restart: always
+    networks:
+      - default
+    expose:
+      - 3306
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+    environment:
+      - TZ=UTC
+      - MYSQL_ROOT_PASSWORD=Hbiba@2026!
+      - MYSQL_DATABASE=xiaozhi_esp32_server
+      - MYSQL_ROOT_HOST=%
+
+  # ===== Redis cache =====
+  hbiba-esp32-server-redis:
+    image: redis:8.0
+    container_name: hbiba-esp32-server-redis
+    expose:
+      - 6379
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - default
+
+networks:
+  default:
