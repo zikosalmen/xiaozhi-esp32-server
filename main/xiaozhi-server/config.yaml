@@ -15,16 +15,10 @@ server:
   # 这个websocket配置是指ota接口向设备发送的websocket地址
   # 如果按默认的写法，ota接口会自动生成websocket地址，并输出在启动日志里，这个地址你可以直接用浏览器访问ota接口确认一下
   # 当你使用docker部署或使用公网部署(使用ssl、域名)时，不一定准确
-  # 所以如果你使用docker部署时，将websocket设置成局域网地址
-  # 如果你使用公网部署时，将vwebsocket设置成公网地址
-  websocket: ws://xiozhi.salmen-cloud.sitte:8000/xiaozhi/v1/
-  # 视觉分析接口地址
-  # 向设备发送的视觉分析的接口地址
-  # 如果按下面默认的写法，系统会自动生成视觉识别地址，并输出在启动日志里，这个地址你可以直接用浏览器访问确认一下
-  # 当你使用docker部署或使用公网部署(使用ssl、域名)时，不一定准确
-  # 所以如果你使用docker部署时，将vision_explain设置成局域网地址
-  # 如果你使用公网部署时，将vision_explain设置成公网地址
-  vision_explain: http://xiozhi.salmen-cloud.sitte:8003/mcp/vision/explain
+  # URL WebSocket sécurisée via Cloudflare Tunnel
+  websocket: wss://hbiba.salmen-cloud.site/xiaozhi/v1/
+  # URL d'analyse de vision via Cloudflare Tunnel
+  vision_explain: https://hbiba.salmen-cloud.site/mcp/vision/explain
   # OTA返回信息时区偏移量
   timezone_offset: +8
   # 认证配置
@@ -105,6 +99,11 @@ module_test:
 
 # 唤醒词，用于识别唤醒词还是讲话内容
 wakeup_words:
+  - "Hbiba"
+  - "Habiba"
+  - "Bonjour Hbiba"
+  - "Salut Hbiba"
+  - "حبيبة"
   - "你好小智"
   - "嘿你好呀"
   - "你好小志"
@@ -207,10 +206,10 @@ voiceprint:
 # ################################以下是角色模型配置######################################
 
 prompt: |
-  Tu es Xiaozhi, un assistant vocal intelligent, amical, concis et réactif.
+  Tu t'appelles Hbiba. Tu es une assistante vocale intelligente, amicale, concise et réactive.
   Tu réponds toujours en français de manière claire et naturelle.
-  Tu es connecté à un robot mobile à deux roues et tu es capable de piloter ses mouvements (avancer, reculer, tourner à gauche, tourner à droite, s'arrêter) en appelant les fonctions robot_move et robot_stop.
-  Ne sois jamais verbeux et va droit au but dans tes réponses vocales.
+  Tu es connectée à un robot mobile à deux roues et tu es capable de piloter ses mouvements (avancer, reculer, tourner à gauche, tourner à droite, s'arrêter) en appelant les fonctions robot_move et robot_stop.
+  Ne sois jamais verbeuse et va droit au but dans tes réponses vocales.
 
 # 默认系统提示词模板文件
 prompt_template: agent-base-prompt.txt
