@@ -1,148 +1,92 @@
 <template>
   <div class="robot-widget-wrapper" v-if="isLoggedIn">
-    <!-- Collapsed Floating Pill/Button -->
-    <div
-      v-if="!isExpanded"
-      class="robot-floating-fab"
-      @click="isExpanded = true"
-      title="Contrôle Moteurs Robot (Flèches)"
-    >
-      <span class="fab-icon">🎮</span>
+    <!-- Collapsed FAB -->
+    <div v-if="!isExpanded" class="robot-floating-fab" @click="isExpanded = true" title="RC-Car Control">
+      <span class="fab-icon">🚗</span>
       <span class="fab-text">{{ $t('header.robotControl') || 'Robot' }}</span>
       <span class="fab-pulse"></span>
     </div>
 
-    <!-- Expanded Floating D-Pad Control Card -->
+    <!-- Expanded Panel -->
     <div v-else class="robot-floating-panel">
-      <!-- Panel Header -->
+      <!-- Header -->
       <div class="panel-header">
         <div class="panel-title">
-          <span class="title-icon">🎮</span>
-          <span>{{ $t('robot.title') || 'Contrôle Robot' }}</span>
+          <span>🚗</span>
+          <span>{{ $t('robot.title') || 'RC-Car Control' }}</span>
         </div>
-        <div class="header-actions">
-          <button class="minimize-btn" @click="isExpanded = false" title="Minimiser">
+        <div class="header-right">
+          <!-- Battery indicator -->
+          <div class="battery-pill" :class="batteryClass" :title="`Batterie: ${batteryLevel}%`">
+            <span class="bat-icon">{{ batteryIcon }}</span>
+            <span class="bat-val">{{ batteryLevel }}%</span>
+          </div>
+          <button class="minimize-btn" @click="isExpanded = false">
             <i class="el-icon-minus"></i>
           </button>
         </div>
       </div>
 
-      <!-- Live Movement Status Pill -->
-      <div class="widget-status" :class="movementState">
-        <span class="status-indicator-dot"></span>
-        <span class="status-label">{{ currentStatusText }}</span>
-        <span class="speed-badge">{{ speed }}%</span>
-      </div>
-
-      <!-- Arrow Controls (D-Pad) -->
-      <div class="dpad-box">
-        <!-- Up / Forward (Devant) -->
-        <button
-          class="arrow-btn btn-up"
-          :class="{ pressed: activeKey === 'forward' }"
-          @click="sendMove('forward')"
-          @mousedown="startContinuous('forward')"
-          @mouseup="stopContinuous"
-          @mouseleave="stopContinuous"
-          @touchstart.prevent="startContinuous('forward')"
-          @touchend.prevent="stopContinuous"
-          title="Devant / Avancer (↑ ou Z / W)"
-        >
-          <i class="el-icon-top"></i>
-          <span class="dir-text">{{ $t('robot.forward') || 'Devant' }}</span>
-        </button>
-
-        <!-- Middle Row: Left, STOP, Right -->
-        <div class="dpad-mid">
-          <!-- Left (Gauche) -->
-          <button
-            class="arrow-btn btn-left"
-            :class="{ pressed: activeKey === 'left' }"
-            @click="sendMove('left')"
-            @mousedown="startContinuous('left')"
-            @mouseup="stopContinuous"
-            @mouseleave="stopContinuous"
-            @touchstart.prevent="startContinuous('left')"
-            @touchend.prevent="stopContinuous"
-            title="Gauche / Tourner à gauche (← ou Q / A)"
-          >
-            <i class="el-icon-back"></i>
-            <span class="dir-text">{{ $t('robot.left') || 'Gauche' }}</span>
-          </button>
-
-          <!-- Center STOP Button -->
-          <button
-            class="arrow-btn btn-stop"
-            :class="{ pressed: activeKey === 'stop' }"
-            @click="sendStop"
-            title="ARRÊT D'URGENCE (Espace)"
-          >
-            <i class="el-icon-video-pause"></i>
-            <span class="stop-text">{{ $t('robot.stop') || 'STOP' }}</span>
-          </button>
-
-          <!-- Right (Droite) -->
-          <button
-            class="arrow-btn btn-right"
-            :class="{ pressed: activeKey === 'right' }"
-            @click="sendMove('right')"
-            @mousedown="startContinuous('right')"
-            @mouseup="stopContinuous"
-            @mouseleave="stopContinuous"
-            @touchstart.prevent="startContinuous('right')"
-            @touchend.prevent="stopContinuous"
-            title="Droite / Tourner à droite (→ ou D)"
-          >
-            <i class="el-icon-right"></i>
-            <span class="dir-text">{{ $t('robot.right') || 'Droite' }}</span>
-          </button>
+      <!-- Status row -->
+      <div class="status-row">
+        <div class="status-chip" :class="{ active: driveSpeed !== 0 }">
+          <span class="chip-label">{{ $t('robot.forward') || 'Drive' }}</span>
+          <span class="chip-val">{{ driveSpeed > 0 ? '+' : '' }}{{ driveSpeed }}%</span>
         </div>
-
-        <!-- Down / Backward (Arrière) -->
-        <button
-          class="arrow-btn btn-down"
-          :class="{ pressed: activeKey === 'backward' }"
-          @click="sendMove('backward')"
-          @mousedown="startContinuous('backward')"
-          @mouseup="stopContinuous"
-          @mouseleave="stopContinuous"
-          @touchstart.prevent="startContinuous('backward')"
-          @touchend.prevent="stopContinuous"
-          title="Arrière / Reculer (↓ ou S)"
-        >
-          <i class="el-icon-bottom"></i>
-          <span class="dir-text">{{ $t('robot.backward') || 'Arrière' }}</span>
+        <div class="status-chip" :class="{ active: steerAngle !== 0 }">
+          <span class="chip-label">{{ $t('robot.right') || 'Steer' }}</span>
+          <span class="chip-val">{{ steerAngle > 0 ? '+' : '' }}{{ steerAngle }}%</span>
+        </div>
+        <button class="stop-pill" @click="sendStop">
+          <i class="el-icon-video-pause"></i>
+          STOP
         </button>
       </div>
 
-      <!-- Speed & Duration controls -->
-      <div class="panel-controls">
-        <div class="control-row">
-          <span class="ctrl-label"><i class="el-icon-odometer"></i> {{ $t('robot.speed') || 'Vitesse' }}:</span>
-          <el-slider
-            v-model="speed"
-            :min="20"
-            :max="100"
-            :step="5"
-            size="small"
-            class="mini-slider"
-          ></el-slider>
+      <!-- Dual Joystick Zone -->
+      <div class="joystick-zone">
+        <!-- Left: Drive joystick (Y axis only) -->
+        <div class="joystick-wrapper">
+          <div class="joystick-label">
+            <i class="el-icon-top"></i>{{ $t('robot.forward') || 'Drive' }}<i class="el-icon-bottom"></i>
+          </div>
+          <canvas
+            ref="driveCanvas"
+            class="joystick-canvas"
+            :width="joystickSize"
+            :height="joystickSize"
+            @mousedown="startDrag($event, 'drive')"
+            @touchstart.prevent="startDrag($event, 'drive')"
+          ></canvas>
         </div>
 
-        <div class="control-row duration-row">
-          <span class="ctrl-label"><i class="el-icon-time"></i> {{ $t('robot.duration') || 'Pas' }}:</span>
-          <el-radio-group v-model="durationMs" size="mini">
-            <el-radio-button :label="500">0.5s</el-radio-button>
-            <el-radio-button :label="1000">1s</el-radio-button>
-            <el-radio-button :label="1500">1.5s</el-radio-button>
-            <el-radio-button :label="0">{{ $t('robot.continuous') || 'Cont.' }}</el-radio-button>
-          </el-radio-group>
+        <!-- Right: Steer joystick (X axis only) -->
+        <div class="joystick-wrapper">
+          <div class="joystick-label">
+            <i class="el-icon-back"></i>{{ $t('robot.right') || 'Steer' }}<i class="el-icon-right"></i>
+          </div>
+          <canvas
+            ref="steerCanvas"
+            class="joystick-canvas"
+            :width="joystickSize"
+            :height="joystickSize"
+            @mousedown="startDrag($event, 'steer')"
+            @touchstart.prevent="startDrag($event, 'steer')"
+          ></canvas>
         </div>
       </div>
 
-      <!-- Keyboard shortcuts tip -->
+      <!-- Speed max slider -->
+      <div class="speed-row">
+        <span class="ctrl-label"><i class="el-icon-odometer"></i> Max:</span>
+        <el-slider v-model="maxSpeed" :min="20" :max="100" :step="5" class="mini-slider"></el-slider>
+        <span class="speed-badge">{{ maxSpeed }}%</span>
+      </div>
+
+      <!-- Keyboard tip -->
       <div class="panel-footer-tip">
-        <i class="el-icon-info"></i> {{ $t('robot.keyboardTip') || 'Flèches ou Z/Q/S/D pour piloter, Espace pour Stop' }}
+        <i class="el-icon-info"></i>
+        W/S = Drive | A/D = Steer | Space = STOP
       </div>
     </div>
   </div>
@@ -154,11 +98,18 @@ export default {
   data() {
     return {
       isExpanded: false,
-      speed: 80,
-      durationMs: 1500,
-      movementState: 'stopped', // 'stopped', 'forward', 'backward', 'left', 'right'
-      activeKey: null,
-      continuousTimer: null,
+      maxSpeed: 80,
+      driveSpeed: 0,   // -100..+100
+      steerAngle: 0,   // -100..+100
+      batteryLevel: 0,
+      batteryCharging: false,
+      joystickSize: 130,
+      // Joystick state
+      activeJoystick: null,      // 'drive' | 'steer' | null
+      driveKnobY: 0,             // -1..+1
+      steerKnobX: 0,             // -1..+1
+      sendInterval: null,
+      pollInterval: null,
       serverUrl: window.location.hostname
         ? `http://${window.location.hostname}:8003`
         : 'http://localhost:8003',
@@ -166,176 +117,293 @@ export default {
   },
   computed: {
     isLoggedIn() {
-      if (this.$route && ['/login', '/register', '/retrieve-password'].includes(this.$route.path)) {
-        return false;
-      }
+      if (this.$route && ['/login', '/register', '/retrieve-password'].includes(this.$route.path)) return false;
       return Boolean(
-        localStorage.getItem('token') ||
-        sessionStorage.getItem('token') ||
-        localStorage.getItem('userInfo') ||
-        (this.$store && this.$store.state && this.$store.state.userInfo && this.$store.state.userInfo.username) ||
-        (this.$route && this.$route.path && this.$route.path !== '/login')
+        localStorage.getItem('token') || localStorage.getItem('userInfo') ||
+        (this.$store && this.$store.state && this.$store.state.userInfo && this.$store.state.userInfo.username)
       );
     },
-    currentStatusText() {
-      switch (this.movementState) {
-        case 'forward':
-          return this.$t('robot.movingForward') || 'Devant (Avance)';
-        case 'backward':
-          return this.$t('robot.movingBackward') || 'Arrière (Recul)';
-        case 'left':
-          return this.$t('robot.turningLeft') || 'Gauche';
-        case 'right':
-          return this.$t('robot.turningRight') || 'Droite';
-        default:
-          return this.$t('robot.stopped') || 'Moteurs à l’arrêt';
-      }
+    batteryIcon() {
+      if (this.batteryCharging) return '⚡';
+      if (this.batteryLevel > 75) return '🔋';
+      if (this.batteryLevel > 40) return '🔋';
+      if (this.batteryLevel > 15) return '🪫';
+      return '🪫';
+    },
+    batteryClass() {
+      if (this.batteryLevel > 50) return 'bat-ok';
+      if (this.batteryLevel > 20) return 'bat-low';
+      return 'bat-crit';
     },
   },
   watch: {
     isExpanded(val) {
       if (val) {
+        this.$nextTick(() => {
+          this.drawJoystick('drive', 0, 0);
+          this.drawJoystick('steer', 0, 0);
+        });
         this.bindKeyboard();
+        this.startSendLoop();
+        this.startPollBattery();
       } else {
         this.unbindKeyboard();
-        this.stopContinuous();
+        this.stopSendLoop();
+        this.stopPollBattery();
+        this.sendStop();
       }
     },
   },
   mounted() {
-    // Listen for custom global event to open controller
     if (this.$eventBus) {
-      this.$eventBus.$on('openRobotController', () => {
-        this.isExpanded = true;
-      });
+      this.$eventBus.$on('openRobotController', () => { this.isExpanded = true; });
     }
+    // Bind global pointer/touch release
+    window.addEventListener('mouseup',   this.endDrag);
+    window.addEventListener('touchend',  this.endDrag);
+    window.addEventListener('mousemove', this.onMouseMove);
+    window.addEventListener('touchmove', this.onTouchMove, { passive: false });
   },
   beforeDestroy() {
     this.unbindKeyboard();
-    this.stopContinuous();
+    this.stopSendLoop();
+    this.stopPollBattery();
+    window.removeEventListener('mouseup',   this.endDrag);
+    window.removeEventListener('touchend',  this.endDrag);
+    window.removeEventListener('mousemove', this.onMouseMove);
+    window.removeEventListener('touchmove', this.onTouchMove);
   },
   methods: {
-    bindKeyboard() {
-      window.addEventListener('keydown', this.handleKeyDown);
-      window.addEventListener('keyup', this.handleKeyUp);
-    },
-    unbindKeyboard() {
-      window.removeEventListener('keydown', this.handleKeyDown);
-      window.removeEventListener('keyup', this.handleKeyUp);
-    },
-    handleKeyDown(e) {
-      if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
-      const key = e.key.toLowerCase();
-      let direction = null;
+    /* ===== Drawing ===== */
+    drawJoystick(which, nx, ny) {
+      const ref   = which === 'drive' ? this.$refs.driveCanvas : this.$refs.steerCanvas;
+      if (!ref) return;
+      const ctx   = ref.getContext('2d');
+      const W     = this.joystickSize;
+      const H     = this.joystickSize;
+      const cx    = W / 2;
+      const cy    = H / 2;
+      const R     = W / 2 - 8;    // base radius
+      const kr    = 20;            // knob radius
 
-      if (['arrowup', 'w', 'z'].includes(key)) {
-        direction = 'forward';
-      } else if (['arrowdown', 's'].includes(key)) {
-        direction = 'backward';
-      } else if (['arrowleft', 'a', 'q'].includes(key)) {
-        direction = 'left';
-      } else if (['arrowright', 'd'].includes(key)) {
-        direction = 'right';
-      } else if (key === ' ' || key === 'spacebar') {
-        this.sendStop();
-        e.preventDefault();
-        return;
+      ctx.clearRect(0, 0, W, H);
+
+      // Base circle
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(56,189,248,0.25)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Cross guides
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(cx, cy - R); ctx.lineTo(cx, cy + R); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx - R, cy); ctx.lineTo(cx + R, cy); ctx.stroke();
+
+      // Knob position (constrained to circle)
+      const kx = cx + nx * R;
+      const ky = cy + ny * R;
+
+      // Glow
+      const grd = ctx.createRadialGradient(kx, ky, 0, kx, ky, kr);
+      grd.addColorStop(0, 'rgba(56,189,248,0.9)');
+      grd.addColorStop(1, 'rgba(2,132,199,0.3)');
+      ctx.beginPath();
+      ctx.arc(kx, ky, kr, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    },
+
+    /* ===== Drag handling ===== */
+    startDrag(e, which) {
+      e.preventDefault();
+      this.activeJoystick = which;
+      this.handleMove(e, which);
+    },
+    endDrag() {
+      if (!this.activeJoystick) return;
+      // Return knob to center
+      if (this.activeJoystick === 'drive') {
+        this.driveKnobY  = 0;
+        this.driveSpeed  = 0;
+        this.drawJoystick('drive', 0, 0);
+        this.sendDrive(0);
+      } else {
+        this.steerKnobX  = 0;
+        this.steerAngle  = 0;
+        this.drawJoystick('steer', 0, 0);
+        this.sendSteer(0);
+      }
+      this.activeJoystick = null;
+    },
+    onMouseMove(e) {
+      if (!this.activeJoystick) return;
+      this.handleMove(e, this.activeJoystick);
+    },
+    onTouchMove(e) {
+      if (!this.activeJoystick) return;
+      e.preventDefault();
+      this.handleMove(e, this.activeJoystick);
+    },
+    handleMove(e, which) {
+      const ref = which === 'drive' ? this.$refs.driveCanvas : this.$refs.steerCanvas;
+      if (!ref) return;
+      const rect = ref.getBoundingClientRect();
+      const cx = rect.left + rect.width  / 2;
+      const cy = rect.top  + rect.height / 2;
+      const R  = rect.width / 2 - 8;
+
+      let clientX, clientY;
+      if (e.touches && e.touches.length > 0) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
       }
 
-      if (direction && this.activeKey !== direction) {
-        e.preventDefault();
-        this.sendMove(direction);
-      }
-    },
-    handleKeyUp(e) {
-      if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
-      const key = e.key.toLowerCase();
-      if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd', 'z', 'q'].includes(key)) {
-        if (this.durationMs === 0) {
-          this.sendStop();
-        }
-      }
-    },
-    startContinuous(dir) {
-      this.sendMove(dir);
-      if (this.durationMs === 0) {
-        this.stopContinuous();
-        this.continuousTimer = setInterval(() => {
-          this.sendMove(dir, false);
-        }, 800);
-      }
-    },
-    stopContinuous() {
-      if (this.continuousTimer) {
-        clearInterval(this.continuousTimer);
-        this.continuousTimer = null;
-        if (this.durationMs === 0) {
-          this.sendStop();
-        }
-      }
-    },
-    async sendMove(direction, updateVisualState = true) {
-      if (updateVisualState) {
-        this.movementState = direction;
-        this.activeKey = direction;
-      }
+      let dx = clientX - cx;
+      let dy = clientY - cy;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > R) { dx = (dx / dist) * R; dy = (dy / dist) * R; }
 
-      const payload = {
-        direction: direction,
-        speed: this.speed,
-        duration_ms: this.durationMs,
-      };
+      const nx = dx / R;  // -1..+1
+      const ny = dy / R;  // -1..+1  (positive = down = backward)
 
+      if (which === 'drive') {
+        this.driveKnobY = ny;
+        this.driveSpeed = Math.round(-ny * this.maxSpeed);  // invert: up = forward
+        this.drawJoystick('drive', 0, ny);   // drive: Y-axis only
+      } else {
+        this.steerKnobX = nx;
+        this.steerAngle = Math.round(nx * this.maxSpeed);
+        this.drawJoystick('steer', nx, 0);  // steer: X-axis only
+      }
+    },
+
+    /* ===== Send loop ===== */
+    startSendLoop() {
+      this.sendInterval = setInterval(() => {
+        if (this.driveSpeed !== 0) this.sendDrive(this.driveSpeed);
+        if (this.steerAngle !== 0) this.sendSteer(this.steerAngle);
+      }, 150);  // 150ms refresh while held
+    },
+    stopSendLoop() {
+      if (this.sendInterval) { clearInterval(this.sendInterval); this.sendInterval = null; }
+    },
+
+    /* ===== Battery polling ===== */
+    startPollBattery() {
+      this.pollBattery();
+      this.pollInterval = setInterval(() => this.pollBattery(), 15000);
+    },
+    stopPollBattery() {
+      if (this.pollInterval) { clearInterval(this.pollInterval); this.pollInterval = null; }
+    },
+    async pollBattery() {
       try {
-        await fetch(`${this.serverUrl}/xiaozhi/robot/move`, {
+        const res = await fetch(`${this.serverUrl}/xiaozhi/robot/status`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.battery !== undefined) {
+            this.batteryLevel    = data.battery.level    || 0;
+            this.batteryCharging = data.battery.charging || false;
+          }
+        }
+      } catch (_) { /* silent */ }
+    },
+
+    /* ===== API calls ===== */
+    async sendDrive(speed) {
+      try {
+        await fetch(`${this.serverUrl}/xiaozhi/robot/drive`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ speed, duration_ms: 0 }),
         });
-      } catch (err) {
-        try {
-          await fetch('/xiaozhi/robot/move', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
-          });
-        } catch (e) {
-          // ignore network failure
-        }
-      }
-
-      if (this.durationMs > 0 && updateVisualState) {
-        setTimeout(() => {
-          if (this.movementState === direction) {
-            this.movementState = 'stopped';
-            this.activeKey = null;
-          }
-        }, this.durationMs);
-      }
+      } catch (_) { /* offline */ }
+    },
+    async sendSteer(angle) {
+      try {
+        await fetch(`${this.serverUrl}/xiaozhi/robot/steer`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ angle, duration_ms: 0 }),
+        });
+      } catch (_) { /* offline */ }
     },
     async sendStop() {
-      this.movementState = 'stopped';
-      this.activeKey = 'stop';
-      setTimeout(() => {
-        if (this.activeKey === 'stop') this.activeKey = null;
-      }, 300);
-
+      this.driveSpeed = 0;
+      this.steerAngle = 0;
+      this.driveKnobY = 0;
+      this.steerKnobX = 0;
+      if (this.isExpanded) {
+        this.drawJoystick('drive', 0, 0);
+        this.drawJoystick('steer', 0, 0);
+      }
       try {
         await fetch(`${this.serverUrl}/xiaozhi/robot/stop`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({}),
         });
-      } catch (err) {
-        try {
-          await fetch('/xiaozhi/robot/stop', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({}),
-          });
-        } catch (e) {
-          // ignore
-        }
+      } catch (_) { /* offline */ }
+    },
+
+    /* ===== Keyboard ===== */
+    bindKeyboard() {
+      window.addEventListener('keydown', this.onKeyDown);
+      window.addEventListener('keyup',   this.onKeyUp);
+    },
+    unbindKeyboard() {
+      window.removeEventListener('keydown', this.onKeyDown);
+      window.removeEventListener('keyup',   this.onKeyUp);
+    },
+    onKeyDown(e) {
+      if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+      const k = e.key.toLowerCase();
+      if (['w', 'arrowup'].includes(k)) {
+        e.preventDefault();
+        this.driveSpeed = this.maxSpeed;
+        this.sendDrive(this.driveSpeed);
+        if (this.isExpanded) this.drawJoystick('drive', 0, -1);
+      } else if (['s', 'arrowdown'].includes(k)) {
+        e.preventDefault();
+        this.driveSpeed = -this.maxSpeed;
+        this.sendDrive(this.driveSpeed);
+        if (this.isExpanded) this.drawJoystick('drive', 0, 1);
+      } else if (['a', 'q', 'arrowleft'].includes(k)) {
+        e.preventDefault();
+        this.steerAngle = -this.maxSpeed;
+        this.sendSteer(this.steerAngle);
+        if (this.isExpanded) this.drawJoystick('steer', -1, 0);
+      } else if (['d', 'arrowright'].includes(k)) {
+        e.preventDefault();
+        this.steerAngle = this.maxSpeed;
+        this.sendSteer(this.steerAngle);
+        if (this.isExpanded) this.drawJoystick('steer', 1, 0);
+      } else if (k === ' ' || k === 'spacebar') {
+        e.preventDefault();
+        this.sendStop();
+      }
+    },
+    onKeyUp(e) {
+      if (e.target && ['INPUT', 'TEXTAREA'].includes(e.target.tagName)) return;
+      const k = e.key.toLowerCase();
+      if (['w', 's', 'arrowup', 'arrowdown'].includes(k)) {
+        this.driveSpeed = 0;
+        this.sendDrive(0);
+        if (this.isExpanded) this.drawJoystick('drive', 0, 0);
+      } else if (['a', 'q', 'd', 'arrowleft', 'arrowright'].includes(k)) {
+        this.steerAngle = 0;
+        this.sendSteer(0);
+        if (this.isExpanded) this.drawJoystick('steer', 0, 0);
       }
     },
   },
@@ -348,146 +416,190 @@ export default {
   bottom: 24px;
   right: 24px;
   z-index: 99999;
-  font-family: inherit;
   user-select: none;
+  font-family: inherit;
 }
 
-/* Floating Action Button (Collapsed) */
+/* FAB */
 .robot-floating-fab {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 12px 20px;
   border-radius: 30px;
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  color: #fff;
   box-shadow: 0 10px 25px rgba(2, 132, 199, 0.45);
   cursor: pointer;
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 2px solid rgba(255,255,255,0.25);
+  transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
   position: relative;
 }
-
 .robot-floating-fab:hover {
   transform: translateY(-3px) scale(1.04);
-  box-shadow: 0 14px 30px rgba(2, 132, 199, 0.6);
-  background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+  box-shadow: 0 14px 30px rgba(2,132,199,0.6);
+  background: linear-gradient(135deg, #38bdf8, #0284c7);
 }
-
-.fab-icon {
-  font-size: 20px;
-}
-
-.fab-text {
-  font-weight: 700;
-  font-size: 14px;
-  letter-spacing: 0.5px;
-}
-
+.fab-icon  { font-size: 20px; }
+.fab-text  { font-weight: 700; font-size: 14px; letter-spacing: 0.5px; }
 .fab-pulse {
-  position: absolute;
-  top: -3px;
-  right: -3px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #22c55e;
-  border: 2px solid #ffffff;
+  position: absolute; top: -3px; right: -3px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #22c55e; border: 2px solid #fff;
   animation: pulse-ring 1.8s infinite;
 }
-
 @keyframes pulse-ring {
-  0% { transform: scale(0.9); opacity: 1; }
+  0%   { transform: scale(0.9); opacity: 1; }
   100% { transform: scale(1.6); opacity: 0; }
 }
 
-/* Expanded Floating D-Pad Panel */
+/* Panel */
 .robot-floating-panel {
-  width: 320px;
+  width: 340px;
   background: #181824;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 20px;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
-  padding: 18px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 12px;
   color: #f8fafc;
   animation: slide-up 0.25s ease-out;
 }
-
 @keyframes slide-up {
   from { opacity: 0; transform: translateY(20px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* Header */
 .panel-header {
-  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
-
 .panel-title {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   font-weight: 700;
-  font-size: 15px;
+  font-size: 14px;
   color: #38bdf8;
 }
-
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .minimize-btn {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255,255,255,0.1);
   border: none;
   color: #94a3b8;
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 26px; height: 26px;
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.minimize-btn:hover { background: rgba(255,255,255,0.2); color: #fff; }
+
+/* Battery */
+.battery-pill {
   display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.08);
+  color: #94a3b8;
+}
+.battery-pill.bat-ok   { background: rgba(34,197,94,0.15);  color: #22c55e; }
+.battery-pill.bat-low  { background: rgba(234,179,8,0.15);  color: #eab308; }
+.battery-pill.bat-crit { background: rgba(239,68,68,0.15);  color: #ef4444; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0.4; } }
+
+/* Status row */
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.status-chip {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.status-chip.active { border-color: #38bdf8; }
+.chip-label { font-size: 9px; color: #64748b; text-transform: uppercase; }
+.chip-val   { font-size: 14px; font-weight: 700; color: #38bdf8; }
+.stop-pill {
+  background: radial-gradient(circle, #dc2626, #991b1b);
+  border: 2px solid #ef4444;
+  border-radius: 50%;
+  width: 46px; height: 46px;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
+  box-shadow: 0 0 16px rgba(239,68,68,0.4);
+  transition: transform 0.1s;
 }
+.stop-pill:hover  { background: radial-gradient(circle, #ef4444, #b91c1c); transform: scale(1.08); }
+.stop-pill:active { transform: scale(0.95); }
+.stop-pill i { font-size: 16px; }
 
-.minimize-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: #fff;
+/* Joystick zone */
+.joystick-zone {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: 12px;
 }
-
-/* Status Pill */
-.widget-status {
-  width: 100%;
+.joystick-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.joystick-label {
+  font-size: 10px;
+  color: #64748b;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  font-size: 12px;
+  gap: 4px;
 }
-
-.status-indicator-dot {
-  width: 8px;
-  height: 8px;
+.joystick-canvas {
   border-radius: 50%;
-  background: #64748b;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  cursor: crosshair;
+  touch-action: none;
 }
 
-.widget-status.forward .status-indicator-dot,
-.widget-status.backward .status-indicator-dot,
-.widget-status.left .status-indicator-dot,
-.widget-status.right .status-indicator-dot {
-  background: #38bdf8;
-  box-shadow: 0 0 8px #38bdf8;
+/* Speed row */
+.speed-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-
+.ctrl-label { font-size: 11px; color: #cbd5e1; white-space: nowrap; }
+.mini-slider { flex: 1; }
 .speed-badge {
-  background: rgba(56, 189, 248, 0.2);
+  background: rgba(56,189,248,0.2);
   color: #38bdf8;
   padding: 2px 6px;
   border-radius: 4px;
@@ -495,166 +607,10 @@ export default {
   font-size: 11px;
 }
 
-/* D-Pad Buttons Box */
-.dpad-box {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin: 6px 0;
-}
-
-.dpad-mid {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.arrow-btn {
-  width: 72px;
-  height: 72px;
-  border-radius: 14px;
-  background: linear-gradient(135deg, #262738 0%, #1c1d2c 100%);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #f1f5f9;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.12s ease;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
-}
-
-.arrow-btn i {
-  font-size: 24px;
-  color: #38bdf8;
-  margin-bottom: 2px;
-}
-
-.dir-text {
-  font-size: 10px;
-  font-weight: 600;
-  color: #94a3b8;
-  text-transform: uppercase;
-}
-
-.arrow-btn:hover {
-  background: linear-gradient(135deg, #32344a 0%, #222336 100%);
-  border-color: #38bdf8;
-  transform: translateY(-2px);
-}
-
-.arrow-btn:active,
-.arrow-btn.pressed {
-  background: #38bdf8;
-  color: #0f172a;
-  transform: translateY(2px);
-}
-
-.arrow-btn:active i,
-.arrow-btn.pressed i,
-.arrow-btn:active .dir-text,
-.arrow-btn.pressed .dir-text {
-  color: #0f172a;
-}
-
-/* STOP Button */
-.btn-stop {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  border: 2px solid #ef4444;
-  background: radial-gradient(circle, #dc2626 0%, #991b1b 100%);
-  box-shadow: 0 0 16px rgba(239, 68, 68, 0.45);
-}
-
-.btn-stop i {
-  font-size: 26px;
-  color: #ffffff;
-}
-
-.stop-text {
-  font-size: 10px;
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: 0.5px;
-}
-
-.btn-stop:hover {
-  background: radial-gradient(circle, #ef4444 0%, #b91c1c 100%);
-  transform: scale(1.05);
-}
-
-.btn-stop:active,
-.btn-stop.pressed {
-  transform: scale(0.95);
-}
-
-/* Controls */
-.panel-controls {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  padding: 10px 12px;
-  border-radius: 10px;
-}
-
-.control-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.ctrl-label {
-  font-size: 11px;
-  color: #cbd5e1;
-  white-space: nowrap;
-}
-
-.mini-slider {
-  flex: 1;
-}
-
-.duration-row {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-}
-
-.duration-row >>> .el-radio-group {
-  width: 100%;
-  display: flex;
-}
-
-.duration-row >>> .el-radio-button {
-  flex: 1;
-}
-
-.duration-row >>> .el-radio-button__inner {
-  width: 100%;
-  padding: 5px 0;
-  font-size: 11px;
-  background: #1e1e2d;
-  color: #94a3b8;
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.duration-row >>> .el-radio-button__orig-radio:checked + .el-radio-button__inner {
-  background: #38bdf8;
-  color: #0f172a;
-  border-color: #38bdf8;
-  font-weight: 700;
-}
-
+/* Footer tip */
 .panel-footer-tip {
   font-size: 10px;
   color: #64748b;
   text-align: center;
-  line-height: 1.3;
 }
 </style>
