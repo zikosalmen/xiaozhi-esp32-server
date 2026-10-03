@@ -123,7 +123,7 @@ export default {
       pageSizeOptions: [10, 20, 50, 100],
       total: 0,
       dialogVisible: false,
-      dialogTitle: "新增供应器",
+      dialogTitle: '',
       isAllSelected: false,
       DropdownVisible: false,
       sensitive_keys: ["api_key", "personal_access_token", "access_token", "token", "secret", "access_key_secret", "secret_key"],
@@ -214,7 +214,7 @@ export default {
             this.total = data.data.total;
           } else {
             this.$message.error({
-              message: data.msg || '获取参数列表失败'
+              message: data.msg || this.$t('message.error')
             });
           }
         }
@@ -383,7 +383,7 @@ export default {
 }
 
 .main-wrapper {
-  // 顶部 63px 底部 35px
+  // [text] 63px [text] 35px
   height: calc(100vh - 63px - 35px);
   padding: 20px 22px 0;
   position: relative;

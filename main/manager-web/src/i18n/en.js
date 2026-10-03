@@ -6,7 +6,7 @@ export default {
   'login.requiredMobile': 'Please enter a valid mobile phone number',
   'login.loginSuccess': 'Login successful!',
 
-  // HeaderBar组件文本
+  // HeaderBar[text]
   'header.smartManagement': 'Agents',
   'header.modelConfig': 'Models',
   'header.knowledgeBase': 'Knowledge',
@@ -17,7 +17,7 @@ export default {
   'header.paramDictionary': 'More',
   'header.paramManagement': 'Params Management',
   'header.dictManagement': 'Dict Management',
-  'header.agentTemplate': 'Default Role Templates', // 添加这一行
+  'header.agentTemplate': 'Default Role Templates', // 添加这一// [comment]
   'header.searchHistory': 'Search History',
   'header.clearHistory': 'Clear History',
   'header.providerManagement': 'Provider Management',
@@ -1708,4 +1708,25 @@ export default {
   'robot.keyboardTip': 'Use Arrow keys or W/A/S/D to move, Space to stop',
   'robot.commandSent': 'Command sent successfully',
   'robot.commandError': 'Failed to send command',
+  'common.selection': 'Select',
+  'viewPassword.title': 'New User Password',
+  'viewPassword.label': 'New User Password:',
+  'viewPassword.close': 'Close',
+  'viewPassword.copy': 'Copy Password',
+  'viewPassword.copied': 'Password copied',
+  'agentTemplateManagement.fetchTemplateFailed': 'Failed to load template',
+  'common.noData': 'No data',
+  'featureManagement.saveError': 'Save failed, please try again',
+  'message.searchFailed': 'Search failed',
+  'modelConfig.modelConfig': 'Model Configuration',
+  'otaManagement.invalidFirmwareId': 'Invalid firmware ID',
+  'ttsModel.getVoiceListFailed': 'Failed to load voice list',
+  'ttsModel.invalidVoiceId': 'Invalid voice ID',
+  'ttsModel.loadVoiceDataFailed': 'Failed to load voice data',
+  'ttsModel.saveFailed': 'Save failed',
+  'ttsModel.updateFailed': 'Update failed',
+  'voiceClone.audioNotExist': 'Audio file does not exist',
+
+  'common.cannotConnect': 'Cannot connect to server',
+  'common.connecting': 'Connecting to server',
 }

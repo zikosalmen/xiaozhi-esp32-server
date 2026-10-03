@@ -1,7 +1,7 @@
 <template>
   <div class="welcome" @keyup.enter="register">
     <el-container style="height: 100%;">
-      <!-- 保持相同的头部 -->
+      <!-- section -->
       <el-header>
         <div style="display: flex;align-items: center;margin-top: 15px;margin-left: 10px;gap: 10px;">
           <img loading="lazy" alt="" src="@/assets/xiaozhi-logo.png" style="width: 45px;height: 45px;" />
@@ -13,7 +13,7 @@
       </div>
       <el-main style="position: relative;">
         <div class="login-box">
-          <!-- 修改标题部分 -->
+          <!-- section -->
           <div style="display: flex;align-items: center;gap: 20px;margin-bottom: 39px;padding: 0 30px;">
             <img loading="lazy" alt="" src="@/assets/login/hi.png" style="width: 34px;height: 34px;" />
             <div class="login-text">{{ $t('register.title') }}</div>
@@ -30,7 +30,7 @@
                 <el-input v-model="form.username" :placeholder="$t('register.usernamePlaceholder')" />
               </div>
 
-              <!-- 手机号注册部分 -->
+              <!-- section -->
               <template v-if="enableMobileRegister">
                 <div class="input-box">
                   <div style="display: flex; align-items: center; width: 100%;">
@@ -48,11 +48,11 @@
                     <el-input v-model="form.captcha" :placeholder="$t('register.captchaPlaceholder')"
                       style="flex: 1;" />
                   </div>
-                  <img loading="lazy" v-if="captchaUrl" :src="captchaUrl" alt="验证码"
+                  <img loading="lazy" v-if="captchaUrl" :src="captchaUrl" alt="captcha"
                     style="width: 150px; height: 40px; cursor: pointer;" @click="fetchCaptcha" />
                 </div>
 
-                <!-- 手机验证码 -->
+                <!-- section -->
 
                 <div style="display: flex; align-items: center; margin-top: 20px; width: 100%; gap: 10px;">
                   <div class="input-box" style="width: calc(100% - 130px); margin-top: 0;">
@@ -69,42 +69,42 @@
                 </div>
               </template>
 
-              <!-- 密码输入框 -->
+              <!-- section -->
               <div class="input-box">
                 <img loading="lazy" alt="" class="input-icon" src="@/assets/login/password.png" />
                 <el-input v-model="form.password" :placeholder="$t('register.passwordPlaceholder')" type="password"
                   show-password />
               </div>
 
-              <!-- 新增确认密码 -->
+              <!-- section -->
               <div class="input-box">
                 <img loading="lazy" alt="" class="input-icon" src="@/assets/login/password.png" />
                 <el-input v-model="form.confirmPassword" :placeholder="$t('register.confirmPasswordPlaceholder')"
                   type="password" show-password />
               </div>
 
-              <!-- 验证码部分保持相同 -->
+              <!-- section -->
               <div v-if="!enableMobileRegister"
                 style="display: flex; align-items: center; margin-top: 20px; width: 100%; gap: 10px;">
                 <div class="input-box" style="width: calc(100% - 130px); margin-top: 0;">
                   <img loading="lazy" alt="" class="input-icon" src="@/assets/login/shield.png" />
                   <el-input v-model="form.captcha" :placeholder="$t('register.captchaPlaceholder')" style="flex: 1;" />
                 </div>
-                <img loading="lazy" v-if="captchaUrl" :src="captchaUrl" alt="验证码"
+                <img loading="lazy" v-if="captchaUrl" :src="captchaUrl" alt="captcha"
                   style="width: 150px; height: 40px; cursor: pointer;" @click="fetchCaptcha" />
               </div>
 
-              <!-- 修改底部链接 -->
+              <!-- section -->
               <div style="font-weight: 400;font-size: 14px;text-align: left;color: #5778ff;margin-top: 20px;">
                 <div style="cursor: pointer;" @click="goToLogin">{{ $t('register.goToLogin') }}</div>
               </div>
             </form>
           </div>
 
-          <!-- 修改按钮文本 -->
+          <!-- section -->
           <div class="login-btn" @click="register">{{ $t('register.registerButton') }}</div>
 
-          <!-- 保持相同的协议声明 -->
+          <!-- section -->
           <div style="font-size: 14px;color: #979db1;">
             {{ $t('register.agreeTo') }}
             <div style="display: inline-block;color: #5778FF;cursor: pointer;" @click="openPage('/user-agreement.html')">{{ $t('register.userAgreement') }}</div>
@@ -114,7 +114,7 @@
         </div>
       </el-main>
 
-      <!-- 保持相同的页脚 -->
+      <!-- section -->
       <el-footer>
         <version-footer />
       </el-footer>
@@ -129,7 +129,7 @@ import { getUUID, goToPage, showDanger, showSuccess, sm2Encrypt, validateMobile 
 import { mapState } from 'vuex';
 import i18n from '@/i18n';
 
-// 导入语言切换功能
+// [text]
 
 export default {
   name: 'register',
@@ -143,11 +143,11 @@ export default {
       mobileAreaList: state => state.pubConfig.mobileAreaList,
       sm2PublicKey: state => state.pubConfig.sm2PublicKey,
     }),
-    // 获取当前语言
+    // [text]
     currentLanguage() {
       return i18n.locale || "en";
     },
-    // 根据当前语言获取对应的xiaozhi-ai图标
+    // [text]xiaozhi-ai[text]
     xiaozhiAiIcon() {
       return require("@/assets/xiaozhi-ai_en.png");
     },
@@ -191,7 +191,7 @@ export default {
       }
       window.open(url, '_blank');
     },
-    // 复用验证码获取方法
+    // [text]
     fetchCaptcha() {
       this.form.captchaId = getUUID();
       Api.user.getCaptcha(this.form.captchaId, (res) => {
@@ -206,7 +206,7 @@ export default {
       });
     },
 
-    // 封装输入验证逻辑
+    // [text]
     validateInput(input, message) {
       if (!input.trim()) {
         showDanger(message);
@@ -215,26 +215,26 @@ export default {
       return true;
     },
 
-    // 发送手机验证码
+    // [text]
     sendMobileCaptcha() {
       if (!validateMobile(this.form.mobile, this.form.areaCode)) {
         showDanger(this.$t('register.inputCorrectMobile'));
         return;
       }
 
-      // 验证图形验证码
+      // [text]
       if (!this.validateInput(this.form.captcha, this.$t('register.inputCaptcha'))) {
         this.fetchCaptcha();
         return;
       }
 
-      // 清除可能存在的旧定时器
+      // [text]
       if (this.timer) {
         clearInterval(this.timer);
         this.timer = null;
       }
 
-      // 开始倒计时
+      // [text]
       this.countdown = 60;
       this.timer = setInterval(() => {
         if (this.countdown > 0) {
@@ -245,7 +245,7 @@ export default {
         }
       }, 1000);
 
-      // 调用发送验证码接口
+      // [text]
       Api.user.sendSmsVerification({
         phone: this.form.areaCode + this.form.mobile,
         captcha: this.form.captcha,
@@ -259,10 +259,10 @@ export default {
       });
     },
 
-    // 注册逻辑
+    // [text]
     async register() {
       if (this.enableMobileRegister) {
-        // 手机号注册验证
+        // [text]
         if (!validateMobile(this.form.mobile, this.form.areaCode)) {
           showDanger(this.$t('register.inputCorrectMobile'));
           return;
@@ -272,13 +272,13 @@ export default {
           return;
         }
       } else {
-        // 用户名注册验证
+        // [text]
         if (!this.validateInput(this.form.username, this.$t('register.requiredUsername'))) {
           return;
         }
       }
 
-      // 验证密码
+      // [text]
       if (!this.validateInput(this.form.password, this.$t('register.requiredPassword'))) {
         return;
       }
@@ -286,14 +286,14 @@ export default {
         showDanger(this.$t('register.passwordsNotMatch'))
         return
       }
-      // 验证验证码
+      // [text]
       if (!this.validateInput(this.form.captcha, this.$t('register.requiredCaptcha'))) {
         return;
       }
-      // 加密
+      // [text]
       let encryptedPassword;
       try {
-        // 拼接验证码和密码
+        // [text]
         const captchaAndPassword = this.form.captcha + this.form.password;
         encryptedPassword = sm2Encrypt(this.sm2PublicKey, captchaAndPassword);
       } catch (error) {
@@ -309,7 +309,7 @@ export default {
         plainUsername = this.form.username;
       }
 
-      // 准备注册数据
+      // [text]
       const registerData = {
         username: plainUsername,
         password: encryptedPassword,
@@ -322,7 +322,7 @@ export default {
         goToPage('/login')
       }, (err) => {
         showDanger(err.data.msg || this.$t('register.registerFailed'))
-        if (err.data != null && err.data.msg != null && err.data.msg.indexOf('图形验证码') > -1) {
+        if (err.data != null && err.data.msg != null && err.data.msg.indexOf('Captcha') > -1) {
           this.fetchCaptcha()
         }
       })

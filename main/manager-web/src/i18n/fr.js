@@ -6,7 +6,7 @@ export default {
   'login.requiredMobile': 'Veuillez saisir un numéro de téléphone mobile valide',
   'login.loginSuccess': 'Connexion réussie !',
 
-  // HeaderBar组件文本
+  // HeaderBar[text]
   'header.smartManagement': 'Agents',
   'header.modelConfig': 'Modèles',
   'header.knowledgeBase': 'Connaissance',
@@ -1708,4 +1708,25 @@ export default {
   'robot.keyboardTip': 'Flèches ou Z/Q/S/D pour piloter, Espace pour arrêter',
   'robot.commandSent': 'Ordre envoyé avec succès',
   'robot.commandError': 'Échec de transmission de l’ordre',
+  'common.selection': 'Sélectionner',
+  'viewPassword.title': 'Nouveau mot de passe',
+  'viewPassword.label': 'Nouveau mot de passe :',
+  'viewPassword.close': 'Fermer',
+  'viewPassword.copy': 'Copier le mot de passe',
+  'viewPassword.copied': 'Mot de passe copié',
+  'agentTemplateManagement.fetchTemplateFailed': 'Échec du chargement du modèle',
+  'common.noData': 'Aucune donnée',
+  'featureManagement.saveError': 'Échec de l\'enregistrement, veuillez réessayer',
+  'message.searchFailed': 'Recherche échouée',
+  'modelConfig.modelConfig': 'Configuration du modèle',
+  'otaManagement.invalidFirmwareId': 'ID de firmware invalide',
+  'ttsModel.getVoiceListFailed': 'Échec du chargement de la liste des voix',
+  'ttsModel.invalidVoiceId': 'ID de voix invalide',
+  'ttsModel.loadVoiceDataFailed': 'Échec du chargement des données vocales',
+  'ttsModel.saveFailed': 'Échec de l\'enregistrement',
+  'ttsModel.updateFailed': 'Échec de la mise à jour',
+  'voiceClone.audioNotExist': 'Le fichier audio n\'existe pas',
+
+  'common.cannotConnect': 'Impossible de se connecter au serveur',
+  'common.connecting': 'Connexion au serveur en cours',
 }

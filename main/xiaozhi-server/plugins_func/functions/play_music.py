@@ -20,13 +20,13 @@ play_music_function_desc = {
     "type": "function",
     "function": {
         "name": "play_music",
-        "description": "当用户要求播放音乐、歌曲时调用。",
+        "description": "Appelé lorsque l'utilisateur demande de jouer de la musique ou une chanson / Call when the user asks to play music or a song.",
         "parameters": {
             "type": "object",
             "properties": {
                 "song_name": {
                     "type": "string",
-                    "description": "歌曲名称，如果用户没有指定具体歌名则为'random', 明确指定的时返回音乐的名字 示例: ```用户:播放两只老虎\n参数：两只老虎``` ```用户:播放音乐 \n参数：random ```",
+                    "description": "Titre du morceau ou 'random' pour lecture aléatoire / Song title or 'random' for a random song.",
                 }
             },
             "required": ["song_name"],

@@ -126,31 +126,76 @@ async def no_voice_close_connect(conn: "ConnectionHandler", have_voice):
                 return
             prompt = end_prompt.get("prompt")
             if not prompt:
-                prompt = "请你以```时间过得真快```未来头，用富有感情、依依不舍的话来结束这场对话吧。！"
+                tts_cfg = conn.config.get("TTS", {}).get(
+                    conn.config.get("selected_module", {}).get("TTS", ""), {}
+                )
+                lang = str(tts_cfg.get("language") or conn.config.get("language") or "").lower()
+                voice = str(getattr(getattr(conn, "tts", None), "voice", "") or tts_cfg.get("voice", "")).lower()
+                if any(z in lang for z in ["zh", "中文", "chinese"]) or voice.startswith("zh-"):
+                    prompt = "请你以```时间过得真快```未来头，用富有感情、依依不舍的话来结束这场对话吧。！"
+                elif any(e in lang for e in ["en", "english"]) or voice.startswith("en-"):
+                    prompt = "Please conclude this conversation warmly and briefly by saying goodbye."
+                else:
+                    prompt = "Termine cette conversation de façon chaleureuse et brève en disant au revoir."
             await startToChat(conn, prompt)
 
 
 async def max_out_size(conn: "ConnectionHandler"):
     # 播放超出最大输出字数的提示
     conn.client_abort = False
-    text = "不好意思，我现在有点事情要忙，明天这个时候我们再聊，约好了哦！明天不见不散，拜拜！"
+    tts_cfg = conn.config.get("TTS", {}).get(
+        conn.config.get("selected_module", {}).get("TTS", ""), {}
+    )
+    lang = str(tts_cfg.get("language") or conn.config.get("language") or "").lower()
+    voice = str(getattr(getattr(conn, "tts", None), "voice", "") or tts_cfg.get("voice", "")).lower()
+    if any(z in lang for z in ["zh", "中文", "chinese"]) or voice.startswith("zh-"):
+        text = "不好意思，我现在有点事情要忙，明天这个时候我们再聊，约好了哦！明天不见不散，拜拜！"
+    elif any(e in lang for e in ["en", "english"]) or voice.startswith("en-"):
+        text = "Sorry, I have to step away now. Let's talk again soon! Goodbye!"
+    else:
+        text = "Désolé, je dois m'absenter un moment. On se reparle très bientôt ! À bientôt, au revoir !"
     await send_stt_message(conn, text)
-    file_path = "config/assets/max_output_size.wav"
-    opus_packets = await audio_to_data(file_path)
+    opus_packets = None
+    if getattr(conn, "tts", None):
+        try:
+            opus_packets = await asyncio.to_thread(conn.tts.to_tts, text)
+        except Exception:
+            opus_packets = None
+    if not opus_packets:
+        file_path = "config/assets/max_output_size.wav"
+        opus_packets = await audio_to_data(file_path)
     conn.tts.tts_audio_queue.put((SentenceType.LAST, opus_packets, text))
     conn.close_after_chat = True
 
 
 async def check_bind_device(conn: "ConnectionHandler"):
     if conn.bind_code:
+        tts_cfg = conn.config.get("TTS", {}).get(
+            conn.config.get("selected_module", {}).get("TTS", ""), {}
+        )
+        lang = str(tts_cfg.get("language") or conn.config.get("language") or "").lower()
+        voice = str(getattr(getattr(conn, "tts", None), "voice", "") or tts_cfg.get("voice", "")).lower()
+        is_zh = any(z in lang for z in ["zh", "中文", "chinese"]) or voice.startswith("zh-")
+        is_en = any(e in lang for e in ["en", "english"]) or voice.startswith("en-")
+
         # 确保bind_code是6位数字
         if len(conn.bind_code) != 6:
             conn.logger.bind(tag=TAG).error(f"无效的绑定码格式: {conn.bind_code}")
-            text = "绑定码格式错误，请检查配置。"
+            if is_zh:
+                text = "绑定码格式错误，请检查配置。"
+            elif is_en:
+                text = "Invalid binding code format, please check configuration."
+            else:
+                text = "Format de code d'association invalide, veuillez vérifier la configuration."
             await send_stt_message(conn, text)
             return
 
-        text = f"请登录控制面板，输入{conn.bind_code}，绑定设备。"
+        if is_zh:
+            text = f"请登录控制面板，输入{conn.bind_code}，绑定设备。"
+        elif is_en:
+            text = f"Please log in to the management console and enter {conn.bind_code} to bind your device."
+        else:
+            text = f"Veuillez vous connecter à l'interface d'administration et entrer le code {conn.bind_code} pour associer votre appareil."
         await send_stt_message(conn, text)
 
         # 播放提示音

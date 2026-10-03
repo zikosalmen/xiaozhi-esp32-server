@@ -127,8 +127,8 @@ class PromptManager:
         self.logger.bind(tag=TAG).info(f"使用快速提示词: {user_prompt[:50]}...")
         return user_prompt
 
-    def _get_current_time_info(self) -> tuple:
-        """获取当前时间信息"""
+    def _get_current_time_info(self, lang: str = "fr") -> tuple:
+        """获取当前时间信息（支持语言适配）"""
         from .current_time import (
             get_current_date,
             get_current_weekday,
@@ -136,8 +136,9 @@ class PromptManager:
         )
 
         today_date = get_current_date()
-        today_weekday = get_current_weekday()
-        lunar_date = get_current_lunar_date() + "\n"
+        today_weekday = get_current_weekday(lang=lang)
+        lunar_raw = get_current_lunar_date()
+        lunar_date = (lunar_raw + "\n") if (lang == "zh" and lunar_raw) else ""
 
         return today_date, today_weekday, lunar_date
 
@@ -153,7 +154,7 @@ class PromptManager:
             from core.utils.util import get_ip_info
 
             ip_info = get_ip_info(client_ip, self.logger)
-            city = ip_info.get("city", "未知位置")
+            city = ip_info.get("city", "Position inconnue")
             location = f"{city}"
 
             # 存入缓存
@@ -161,7 +162,7 @@ class PromptManager:
             return location
         except Exception as e:
             self.logger.bind(tag=TAG).error(f"获取位置信息失败: {e}")
-            return "未知位置"
+            return "Position inconnue"
 
     def _get_weather_info(self, conn: "ConnectionHandler", location: str) -> str:
         """获取天气信息"""
@@ -184,7 +185,7 @@ class PromptManager:
             async def _call():
                 try:
                     result_holder.append(
-                        await get_weather(conn, location=location, lang="zh_CN")
+                        await get_weather(conn, location=location, lang="fr")
                     )
                 except Exception as e:
                     exception_holder.append(e)
@@ -202,11 +203,11 @@ class PromptManager:
                 weather_report = result.result
                 self.cache_manager.set(self.CacheType.WEATHER, location, weather_report)
                 return weather_report
-            return "天气信息获取失败"
+            return "Météo momentanément indisponible"
 
         except Exception as e:
             self.logger.bind(tag=TAG).error(f"获取天气信息失败: {e}")
-            return "天气信息获取失败"
+            return "Météo momentanément indisponible"
 
     def update_context_info(self, conn, client_ip: str):
         """同步更新上下文信息"""
@@ -249,41 +250,50 @@ class PromptManager:
     def build_enhanced_prompt(
         self, user_prompt: str, device_id: str, client_ip: str = None, *args, **kwargs
     ) -> str:
-        """构建增强的系统提示词"""
+        """构建增强提示词"""
         if not self.base_prompt_template:
             return user_prompt
 
         try:
+            selected_tts = self.config.get("selected_module", {}).get("TTS", "")
+            tts_cfg = self.config.get("TTS", {}).get(selected_tts, {})
+            voice = str(tts_cfg.get("voice", "")).lower()
+            raw_lang = str(tts_cfg.get("language") or self.config.get("language") or "")
+
+            if any(f in raw_lang.lower() for f in ["fr", "français", "francais", "french"]) or voice.startswith("fr-"):
+                language = "Français"
+                lang_code = "fr"
+            elif any(e in raw_lang.lower() for e in ["en", "english"]) or voice.startswith("en-"):
+                language = "English"
+                lang_code = "en"
+            elif any(z in raw_lang.lower() for z in ["zh", "中文", "chinese"]) or voice.startswith("zh-"):
+                language = "中文"
+                lang_code = "zh"
+            else:
+                language = raw_lang or "Français"
+                lang_code = "fr"
+            self.logger.bind(tag=TAG).debug(f"Langue sélectionnée: {language} ({lang_code})")
+
             # 获取最新的时间信息（不缓存）
-            today_date, today_weekday, lunar_date = self._get_current_time_info()
+            today_date, today_weekday, lunar_date = self._get_current_time_info(lang=lang_code)
 
             # 获取缓存的上下文信息
             local_address = ""
             weather_info = ""
 
             if client_ip:
-                # 获取位置信息（从全局缓存）
+                # 获取位置信息（优先使用缓存）
                 local_address = (
                     self.cache_manager.get(self.CacheType.LOCATION, client_ip) or ""
                 )
 
-                # 获取天气信息（从全局缓存）
+                # 获取天气信息（优先使用缓存）
                 if local_address:
                     weather_info = (
                         self.cache_manager.get(self.CacheType.WEATHER, local_address)
                         or ""
                     )
 
-            # 获取TTS选择的语言，默认值为中文
-            language = (
-                self.config.get("TTS", {})
-                .get(self.config.get("selected_module", {}).get("TTS", ""), {})
-                .get("language")
-                or "中文"
-            )
-            self.logger.bind(tag=TAG).debug(f"获取到选择的语言: {language}")
-
-            # 替换模板变量
             template = Template(self.base_prompt_template)
             enhanced_prompt = template.render(
                 base_prompt=user_prompt,

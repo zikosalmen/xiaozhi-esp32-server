@@ -105,9 +105,19 @@ class ListenTextMessageHandler(TextMessageHandler):
                     conn.client_is_speaking = False
                 elif is_wakeup_words:
                     conn.just_woken_up = True
-                    # 上报纯文字数据（复用ASR上报功能，但不提供音频数据）
-                    enqueue_asr_report(conn, "嘿，你好呀", [])
-                    await startToChat(conn, "嘿，你好呀")
+                    tts_cfg = conn.config.get("TTS", {}).get(
+                        conn.config.get("selected_module", {}).get("TTS", ""), {}
+                    )
+                    lang = str(tts_cfg.get("language") or conn.config.get("language") or "").lower()
+                    voice = str(getattr(getattr(conn, "tts", None), "voice", "") or tts_cfg.get("voice", "")).lower()
+                    if any(z in lang for z in ["zh", "中文", "chinese"]) or voice.startswith("zh-"):
+                        greeting_text = "嘿，你好呀"
+                    elif any(e in lang for e in ["en", "english"]) or voice.startswith("en-"):
+                        greeting_text = "Hello !"
+                    else:
+                        greeting_text = "Bonjour !"
+                    enqueue_asr_report(conn, greeting_text, [])
+                    await startToChat(conn, greeting_text)
                 else:
                     conn.just_woken_up = True
                     # 上报纯文字数据（复用ASR上报功能，但不提供音频数据）

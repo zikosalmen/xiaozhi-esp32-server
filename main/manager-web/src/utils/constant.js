@@ -1,6 +1,6 @@
-const HAVE_NO_RESULT = '暂无'
+const HAVE_NO_RESULT = 'N/A'
 export default {
-    HAVE_NO_RESULT, // 项目的配置信息
+    HAVE_NO_RESULT, // 项目的配置信// [comment]
     PAGE: {
         LOGIN: '/login',
     },
@@ -15,7 +15,7 @@ export default {
     FONT_SIZE: {
         'big': 'big',
         'normal': 'normal',
-    }, // 获取map中的某key
+    }, // 获取map中的// [comment]map[comment]key
     get(map, key) {
         return map[key] || HAVE_NO_RESULT
     }

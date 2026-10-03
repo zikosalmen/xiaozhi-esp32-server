@@ -76,9 +76,18 @@ enable_websocket_ping: false
 tts_audio_send_delay: 0
 
 exit_commands:
+  - "au revoir"
+  - "quitter"
+  - "fermer"
+  - "stop"
+  - "arrête"
+  - "arrête-toi"
+  - "veille"
+  - "dors"
+  - "bonne nuit"
+  - "bye"
   - "退出"
   - "关闭"
-
 xiaozhi:
   type: hello
   version: 1
@@ -137,7 +146,7 @@ plugins:
   get_weather:
     api_host: "mj7p3y7naa.re.qweatherapi.com"
     api_key: "a861d0d5e7bf4ee1a83d9a9e4f96d4da"
-    default_location: "广州"
+    default_location: "Paris"
   # 获取新闻插件的配置，这里根据需要的新闻类型传入对应的url链接，默认支持社会、科技、财经新闻
   # 更多类型的新闻列表查看 https://www.chinanews.com.cn/rss/
   get_news_from_chinanews:
@@ -756,7 +765,7 @@ TTS:
     # Voix française naturelle et expressive
     voice: fr-FR-VivienneMultilingualNeural
     output_dir: tmp/
-    # language: "中文"  # 指定输出语种,如:中文、英语、日语、韩语等,请根据所选音色支持的语言进行设置,不填则默认为中文
+    language: "Français"  # 指定输出语种,如:中文、英语、日语、韩语等,请根据所选音色支持的语言进行设置,不填则默认为中文
   DoubaoTTS:
     # 定义TTS API类型
     type: doubao

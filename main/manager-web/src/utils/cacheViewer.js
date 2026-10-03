@@ -1,10 +1,10 @@
 /**
- * 缓存查看工具 - 用于检查CDN资源是否已被Service Worker缓存
+ * [text] - [text]CDN[text]Service Worker[text]
  */
 
 /**
- * 获取所有Service Worker缓存的名称
- * @returns {Promise<string[]>} 缓存名称列表
+ * [text]Service Worker[text]
+ * @returns {Promise<string[]>} [text]
  */
 export const getCacheNames = async () => {
   if (!('caches' in window)) {
@@ -20,9 +20,9 @@ export const getCacheNames = async () => {
 };
 
 /**
- * 获取指定缓存中的所有URL
- * @param {string} cacheName 缓存名称
- * @returns {Promise<string[]>} 缓存的URL列表
+ * [text]URL
+ * @param {string} cacheName [text]
+ * @returns {Promise<string[]>} [text]URL[text]
  */
 export const getCacheUrls = async (cacheName) => {
   if (!('caches' in window)) {
@@ -40,9 +40,9 @@ export const getCacheUrls = async (cacheName) => {
 };
 
 /**
- * 检查特定URL是否已被缓存
- * @param {string} url 要检查的URL
- * @returns {Promise<boolean>} 是否已缓存
+ * [text]URL[text]
+ * @param {string} url [text]URL
+ * @returns {Promise<boolean>} [text]
  */
 export const isUrlCached = async (url) => {
   if (!('caches' in window)) {
@@ -66,11 +66,11 @@ export const isUrlCached = async (url) => {
 };
 
 /**
- * 获取当前页面所有CDN资源的缓存状态
- * @returns {Promise<Object>} 缓存状态对象
+ * [text]CDN[text]
+ * @returns {Promise<Object>} [text]
  */
 export const checkCdnCacheStatus = async () => {
-  // 从CDN缓存中查找资源
+  // [text]CDN[text]
   const cdnCaches = ['cdn-stylesheets', 'cdn-scripts'];
   const results = {
     css: [],
@@ -83,7 +83,7 @@ export const checkCdnCacheStatus = async () => {
     try {
       const urls = await getCacheUrls(cacheName);
       
-      // 区分CSS和JS资源
+      // [text]CSS[text]JS[text]
       for (const url of urls) {
         if (url.endsWith('.css')) {
           results.css.push({ url, cached: true });
@@ -101,8 +101,8 @@ export const checkCdnCacheStatus = async () => {
 };
 
 /**
- * 清除所有Service Worker缓存
- * @returns {Promise<boolean>} 是否成功清除
+ * [text]Service Worker[text]
+ * @returns {Promise<boolean>} [text]
  */
 export const clearAllCaches = async () => {
   if (!('caches' in window)) {
@@ -122,7 +122,7 @@ export const clearAllCaches = async () => {
 };
 
 /**
- * 将缓存状态输出到控制台
+ * [text]
  */
 export const logCacheStatus = async () => {
   console.group('Service Worker 缓存状态');

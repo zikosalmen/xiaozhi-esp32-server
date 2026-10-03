@@ -144,6 +144,10 @@ public class WebMvcConfig implements WebMvcConfigurer {
                     } else if (primaryLanguage.startsWith("vi")) {
                         // 对于其他越南语变体，默认使用越南语
                         return Locale.forLanguageTag("vi-VN");
+                    } else if (primaryLanguage.startsWith("fr")) {
+                        return Locale.FRANCE;
+                    } else if (primaryLanguage.startsWith("ar")) {
+                        return Locale.forLanguageTag("ar");
                     }
                 }
 

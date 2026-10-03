@@ -32,7 +32,7 @@
               {{ $t("login.welcome") }}
             </div>
 
-            <!-- 语言切换下拉菜单 -->
+            <!-- section -->
             <el-dropdown trigger="click" class="title-language-dropdown"
               @visible-change="handleLanguageDropdownVisibleChange">
               <span class="el-dropdown-link">
@@ -53,7 +53,7 @@
             </el-dropdown>
           </div>
           <div style="padding: 0 30px">
-            <!-- 用户名登录 -->
+            <!-- section -->
             <template v-if="!isMobileLogin">
               <div class="input-box">
                 <img loading="lazy" alt="" class="input-icon" src="@/assets/login/username.png" />
@@ -61,7 +61,7 @@
               </div>
             </template>
 
-            <!-- 手机号登录 -->
+            <!-- section -->
             <template v-else>
               <div class="input-box">
                 <div style="display: flex; align-items: center; width: 100%">
@@ -99,7 +99,7 @@
           </div>
           <div class="login-btn" @click="login">{{ $t("login.login") }}</div>
 
-          <!-- 登录方式切换按钮 -->
+          <!-- section -->
           <div class="login-type-container" v-if="enableMobileRegister">
             <div style="display: flex; gap: 10px">
               <el-tooltip :content="$t('login.mobileLogin')" placement="bottom">
@@ -151,11 +151,11 @@ export default {
       mobileAreaList: (state) => state.pubConfig.mobileAreaList,
       sm2PublicKey: (state) => state.pubConfig.sm2PublicKey,
     }),
-    // 获取当前语言
+    // [text]
     currentLanguage() {
       return i18n.locale || "en";
     },
-    // 获取当前语言显示文本
+    // [text]
     currentLanguageText() {
       const currentLang = this.currentLanguage;
       switch (currentLang) {
@@ -168,7 +168,7 @@ export default {
           return this.$t("language.en") || "English";
       }
     },
-    // 根据当前语言获取对应的xiaozhi-ai图标
+    // [text]xiaozhi-ai[text]
     xiaozhiAiIcon() {
       return require("@/assets/xiaozhi-ai_en.png");
     },
@@ -193,7 +193,7 @@ export default {
   mounted() {
     this.fetchCaptcha();
     this.$store.dispatch("fetchPubConfig").then(() => {
-      // 根据配置决定默认登录方式
+      // [text]
       this.isMobileLogin = this.enableMobileRegister;
     });
   },
@@ -224,12 +224,12 @@ export default {
       }
     },
 
-    // 切换语言下拉菜单的可见状态变化
+    // [text]
     handleLanguageDropdownVisibleChange(visible) {
       this.languageDropdownVisible = visible;
     },
 
-    // 切换语言
+    // [text]
     changeLanguage(lang) {
       changeLanguage(lang);
       this.languageDropdownVisible = false;
@@ -239,10 +239,10 @@ export default {
       });
     },
 
-    // 切换登录方式
+    // [text]
     switchLoginType(type) {
       this.isMobileLogin = type === "mobile";
-      // 清空表单
+      // [text]
       this.form.username = "";
       this.form.mobile = "";
       this.form.password = "";
@@ -250,7 +250,7 @@ export default {
       this.fetchCaptcha();
     },
 
-    // 封装输入验证逻辑
+    // [text]
     validateInput(input, messageKey) {
       if (!input.trim()) {
         showDanger(this.$t(messageKey));
@@ -265,36 +265,36 @@ export default {
           this.$store.commit("setUserInfo", data.data);
           goToPage("/home");
         } else {
-          showDanger("用户信息获取失败");
+          showDanger(this.$t("login.loginFailed") || "Failed to get user info");
         }
       });
     },
 
     async login() {
       if (this.isMobileLogin) {
-        // 手机号登录验证
+        // [text]
         if (!validateMobile(this.form.mobile, this.form.areaCode)) {
           showDanger(this.$t('login.requiredMobile'));
           return;
         }
-        // 拼接手机号作为用户名
+        // [text]
         this.form.username = this.form.areaCode + this.form.mobile;
       } else {
-        // 用户名登录验证
+        // [text]
         if (!this.validateInput(this.form.username, 'login.requiredUsername')) {
           return;
         }
       }
 
-      // 验证密码
+      // [text]
       if (!this.validateInput(this.form.password, 'login.requiredPassword')) {
         return;
       }
       // Captcha validation disabled
-      // 加密密码
+      // [text]
       let encryptedPassword;
       try {
-        // 拼接验证码和密码
+        // [text]
         const captchaAndPassword = this.form.captcha + this.form.password;
         encryptedPassword = sm2Encrypt(this.sm2PublicKey, captchaAndPassword);
       } catch (error) {
@@ -307,7 +307,7 @@ export default {
 
       this.form.captchaId = this.captchaUuid;
 
-      // 加密
+      // [text]
       const loginData = {
         username: plainUsername,
         password: encryptedPassword,
@@ -322,14 +322,14 @@ export default {
           this.getUserInfo();
         },
         (err) => {
-          // 直接使用后端返回的国际化消息
-          let errorMessage = err.data.msg || "登录失败";
+          // [text]
+          let errorMessage = err.data.msg || this.$t("message.error");
 
           showDanger(errorMessage);
         }
       );
 
-      // 重新获取验证码
+      // [text]
       setTimeout(() => {
         this.fetchCaptcha();
       }, 1000);

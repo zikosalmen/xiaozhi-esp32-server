@@ -11,7 +11,7 @@ from core.handle.helloHandle import checkWakeupWords
 from plugins_func.register import Action, ActionResponse
 from core.handle.sendAudioHandle import send_stt_message
 from core.handle.reportHandle import enqueue_tool_report
-from core.utils.util import remove_punctuation_and_length
+from core.utils.util import remove_punctuation_and_length, get_system_error_response
 from core.providers.tts.dto.dto import TTSMessageDTO, SentenceType
 
 TAG = __name__
@@ -112,11 +112,27 @@ async def process_intent_result(
                     )
 
                     # 构建带上下文的基础提示
-                    context_prompt = f"""当前时间：{current_time}
-                                        今天日期：{today_date} ({today_weekday})
-                                        今天农历：{lunar_date}
+                    tts_cfg = conn.config.get("TTS", {}).get(
+                        conn.config.get("selected_module", {}).get("TTS", ""), {}
+                    )
+                    lang = str(tts_cfg.get("language") or conn.config.get("language") or "").lower()
+                    voice = str(getattr(getattr(conn, "tts", None), "voice", "") or tts_cfg.get("voice", "")).lower()
+                    if any(z in lang for z in ["zh", "中文", "chinese"]) or voice.startswith("zh-"):
+                        context_prompt = f"""当前时间：{current_time}
+今天日期：{today_date} ({today_weekday})
+今天农历：{lunar_date}
 
-                                        请根据以上信息回答用户的问题：{original_text}"""
+请根据以上信息回答用户的问题：{original_text}"""
+                    elif any(e in lang for e in ["en", "english"]) or voice.startswith("en-"):
+                        context_prompt = f"""Current time: {current_time}
+Date: {today_date} ({today_weekday})
+
+Please answer the user's question based on the above information: {original_text}"""
+                    else:
+                        context_prompt = f"""Heure actuelle : {current_time}
+Date : {today_date} ({today_weekday})
+
+Veuillez répondre à la question de l'utilisateur à partir de ces informations : {original_text}"""
 
                     # 使用异步调用避免阻塞事件循环，影响其他设备的音频播放
                     try:
@@ -178,8 +194,9 @@ async def process_intent_result(
                     ).result(timeout=tool_call_timeout)
                 except Exception as e:
                     conn.logger.bind(tag=TAG).error(f"工具调用失败: {e}")
+                    err_msg = get_system_error_response(conn.config)
                     result = ActionResponse(
-                        action=Action.ERROR, result="工具调用超时，请一会再试下哈", response="工具调用超时，请一会再试下哈"
+                        action=Action.ERROR, result=err_msg, response=err_msg
                     )
 
                 # 上报工具调用结果

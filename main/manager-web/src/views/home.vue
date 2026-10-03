@@ -1,10 +1,10 @@
 <template>
   <div class="welcome">
-    <!-- 公共头部 -->
+    <!-- section -->
     <HeaderBar :devices="devices" />
     <el-main style="padding: 20px;display: flex;flex-direction: column;">
       <div>
-        <!-- 首页内容 -->
+        <!-- section -->
         <div class="add-device">
           <div class="add-device-bg">
             <div class="hellow-text" style="padding-top: 30px;">
@@ -32,7 +32,7 @@
                   >
                     <i slot="suffix" class="el-icon-search search-icon" @click="handleSearch"></i>
                   </el-input>
-                  <!-- 搜索历史下拉框 -->
+                  <!-- section -->
                   <div v-if="showHistory && searchHistory.length > 0" class="search-history-dropdown">
                     <div class="search-history-header">
                       <span>{{ $t("header.searchHistory") }}</span>
@@ -165,7 +165,7 @@ export default {
       showChatHistory: false,
       currentAgentId: '',
       currentAgentName: '',
-      // 功能状态
+      // [text]
       featureStatus: {
         voiceprintRecognition: false,
         voiceClone: false,
@@ -194,12 +194,12 @@ export default {
   async mounted() {
     this.fetchAgentList();
     await this.loadFeatureStatus();
-    // 从localStorage加载搜索历史
+    // [text]localStorage[text]
     this.loadSearchHistory();
   },
 
   methods: {
-    // 加载功能状态
+    // [text]
     async loadFeatureStatus() {
       await featureManager.waitForInitialization();
       const config = featureManager.getConfig();
@@ -214,7 +214,7 @@ export default {
       this.addDeviceDialogVisible = true
     },
     goToRoleConfig() {
-      // 点击配置角色后跳转到角色配置页
+      // [text]
       this.$router.push('/role-config')
     },
     handleWisdomBodyAdded(res) {
@@ -226,15 +226,15 @@ export default {
     },
     handleSearchReset() {
       this.isSearching = false;
-      // 直接将原始设备列表赋值给显示设备列表，避免重新加载数据
+      // [text]，[text]
       this.devices = [...this.originalDevices];
     },
 
-    // 搜索更新智能体列表
+    // [text]
     handleSearchResult(filteredList) {
-      this.devices = filteredList; // 更新设备列表
+      this.devices = filteredList; // 更新设备列// [comment]
     },
-    // 获取智能体列表
+    // [text]
     fetchAgentList() {
       this.isLoading = true;
       Api.agent.getAgentList(({ data }) => {
@@ -244,10 +244,10 @@ export default {
             agentId: item.id
           }));
 
-          // 动态设置骨架屏数量（可选）
+          // [text]（[text]）
           this.skeletonCount = Math.min(
-            Math.max(this.originalDevices.length, 3), // 最少3个
-            10 // 最多10个
+            Math.max(this.originalDevices.length, 3), // 最少3// [comment]3[comment]
+            10 // Max entries// [comment]10[comment]
           );
 
           this.handleSearchReset();
@@ -258,7 +258,7 @@ export default {
         this.isLoading = false;
       });
     },
-    // 删除智能体
+    // [text]
     handleDeleteAgent(device) {
       const targetAgent = typeof device === 'object'
         ? device
@@ -306,7 +306,7 @@ export default {
             showClose: true
           });
           this.deleteAgentDialogVisible = false;
-          this.fetchAgentList(); // 刷新列表
+          this.fetchAgentList(); // 刷新列// [comment]
         } else {
           this.$message.error({
             message: res.data.msg || this.$t('home.deleteFailed'),
@@ -324,27 +324,27 @@ export default {
       this.selectedRobotDeviceId = (device && (device.device_id || device.deviceId || device.macAddress)) || '';
       this.showRobotControl = true;
     },
-    // 处理搜索
+    // [text]
     handleSearch() {
       const searchValue = this.search.trim();
 
-      // 如果搜索内容为空，触发重置事件
+      // [text]，[text]
       if (!searchValue) {
         this.handleSearchReset();
         return;
       }
 
-      // 保存搜索历史
+      // [text]
       this.saveSearchHistory(searchValue);
 
-      // 搜索完成后让输入框失去焦点，从而触发blur事件隐藏搜索历史
+      // [text]，[text]blur[text]
       if (this.$refs.searchInput) {
         this.$refs.searchInput.blur();
       }
 
       this.isSearching = true;
       this.isLoading = true;
-      // 检测MAC地址格式：包含4个冒号
+      // [text]MAC[text]：[text]4[text]
       const isMac = /^([0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}$/.test(searchValue)
       const searchType = isMac ? 'mac' : 'name';
       Api.agent.searchAgent(searchValue, searchType, ({ data }) => {
@@ -362,20 +362,20 @@ export default {
       });
     },
 
-    // 显示搜索历史
+    // [text]
     showSearchHistory() {
       this.showHistory = true;
     },
 
-    // 隐藏搜索历史
+    // [text]
     hideSearchHistory() {
-      // 延迟隐藏，以便点击事件能够执行
+      // [text]，[text]
       setTimeout(() => {
         this.showHistory = false;
       }, 200);
     },
 
-    // 加载搜索历史
+    // [text]
     loadSearchHistory() {
       try {
         const history = localStorage.getItem(this.SEARCH_HISTORY_KEY);
@@ -388,21 +388,21 @@ export default {
       }
     },
 
-    // 保存搜索历史
+    // [text]
     saveSearchHistory(keyword) {
       if (!keyword || this.searchHistory.includes(keyword)) {
         return;
       }
 
-      // 添加到历史记录开头
+      // [text]
       this.searchHistory.unshift(keyword);
 
-      // 限制历史记录数量
+      // [text]
       if (this.searchHistory.length > this.MAX_HISTORY_COUNT) {
         this.searchHistory = this.searchHistory.slice(0, this.MAX_HISTORY_COUNT);
       }
 
-      // 保存到localStorage
+      // [text]localStorage
       try {
         localStorage.setItem(this.SEARCH_HISTORY_KEY, JSON.stringify(this.searchHistory));
       } catch (error) {
@@ -410,13 +410,13 @@ export default {
       }
     },
 
-    // 选择搜索历史项
+    // [text]
     selectSearchHistory(keyword) {
       this.search = keyword;
       this.handleSearch();
     },
 
-    // 移除单个搜索历史项
+    // [text]
     removeSearchHistory(index) {
       this.searchHistory.splice(index, 1);
       try {
@@ -426,7 +426,7 @@ export default {
       }
     },
 
-    // 清空所有搜索历史
+    // [text]
     clearSearchHistory() {
       this.searchHistory = [];
       try {
@@ -448,13 +448,13 @@ export default {
   flex-direction: column;
   background: #eff4ff;
   background-size: cover;
-  /* 确保背景图像覆盖整个元素 */
+  /* [text] */
   background-position: center;
-  /* 从顶部中心对齐 */
+  /* [text] */
   -webkit-background-size: cover;
-  /* 兼容老版本WebKit浏览器 */
+  /* [text]WebKit[text] */
   -o-background-size: cover;
-  /* 兼容老版本Opera浏览器 */
+  /* [text]Opera[text] */
 }
 
 .add-device {
@@ -473,15 +473,15 @@ export default {
   text-align: left;
   background-image: url("@/assets/home/main-top-bg.png");
   background-size: cover;
-  /* 确保背景图像覆盖整个元素 */
+  /* [text] */
   background-position: center;
-  /* 从顶部中心对齐 */
+  /* [text] */
   -webkit-background-size: cover;
-  /* 兼容老版本WebKit浏览器 */
+  /* [text]WebKit[text] */
   -o-background-size: cover;
   box-sizing: border-box;
 
-  /* 兼容老版本Opera浏览器 */
+  /* [text]Opera[text] */
   .hellow-text {
     margin-left: 75px;
     color: #3d4566;
@@ -667,10 +667,10 @@ export default {
   padding: 30px 0;
 }
 
-/* 在 DeviceItem.vue 的样式中 */
+/* [text] DeviceItem.vue [text] */
 .device-item {
   margin: 0 !important;
-  /* 避免冲突 */
+  /* [text] */
   width: auto !important;
 }
 
@@ -681,10 +681,10 @@ export default {
   padding-top: 30px;
   color: #979db1;
   text-align: center;
-  /* 居中显示 */
+  /* [text] */
 }
 
-/* 骨架屏动画 */
+/* [text] */
 @keyframes shimmer {
   100% {
     transform: translateX(100%);

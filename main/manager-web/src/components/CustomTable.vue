@@ -15,12 +15,12 @@
         @selection-change="handleSelectionChange"
         @row-click="handleRowClick"
       >
-        <!-- 选择列 -->
+        <!-- section -->
         <el-table-column
           v-if="showSelection"
           width="55"
           align="center"
-          label="选择"
+          :label="$t('common.selection')"
         >
           <template slot-scope="scope">
             <slot
@@ -37,7 +37,7 @@
           </template>
         </el-table-column>
 
-        <!-- 动态列 -->
+        <!-- section -->
         <el-table-column
           v-for="column in columns"
           :key="column.prop"
@@ -57,14 +57,14 @@
               :$index="scope.$index"
               :column="column"
             />
-            <!-- 默认显示 -->
+            <!-- section -->
             <template v-else>
               {{ scope.row[column.prop] }}
             </template>
           </template>
         </el-table-column>
 
-        <!-- 操作列 -->
+        <!-- section -->
         <el-table-column
           v-if="showOperations"
           :label="operationsLabel"
@@ -78,7 +78,7 @@
       </el-table>
     </div>
 
-    <!-- 分页 -->
+    <!-- section -->
     <div class="table-footer">
       <slot name="footer-btns"></slot>
       <CustomPagination
@@ -103,35 +103,35 @@ export default {
     CustomPagination
   },
   props: {
-    // 表格数据
+    // [text]
     data: {
       type: Array,
       default: () => []
     },
-    // 列配置
+    // [text]
     columns: {
       type: Array,
       default: () => []
     },
-    // 是否显示选择框
+    // [text]
     showSelection: {
       type: Boolean,
       default: false
     },
-    // 是否显示操作列
+    // [text]
     showOperations: {
       type: Boolean,
       default: false
     },
     operationsLabel: {
       type: String,
-      default: '操作'
+      default: ''
     },
     operationsWidth: {
       type: [String, Number],
       default: 180
     },
-    // 分页相关
+    // [text]
     showPagination: {
       type: Boolean,
       default: true
@@ -152,7 +152,7 @@ export default {
       type: Array,
       default: () => [10, 20, 50, 100]
     },
-    // 加载状态
+    // [text]
     loading: {
       type: Boolean,
       default: false
@@ -169,7 +169,7 @@ export default {
       type: String,
       default: 'rgba(255, 255, 255, 0.7)'
     },
-    // 自定义类名
+    // [text]
     tableClass: {
       type: String,
       default: ''
@@ -189,30 +189,30 @@ export default {
     }
   },
   methods: {
-    // 复选框变化
+    // [text]
     handleCheckboxChange(row) {
       this.$set(row, 'selected', !row.selected);
     },
-    // 分页事件
+    // [text]
     handleSizeChange(val) {
       this.$emit('size-change', val);
     },
     handlePageChange(page) {
       this.$emit('page-change', page);
     },
-    // 选择事件
+    // [text]
     handleSelectionChange(selection) {
       this.$emit('selection-change', selection);
     },
-    // 行点击事件
+    // [text]
     handleRowClick(row, column, event) {
       this.$emit('row-click', row, column, event);
     },
-    // 清除选择
+    // [text]
     clearSelection() {
       this.$refs.tableRef && this.$refs.tableRef.clearSelection();
     },
-    // 切换选择
+    // [text]
     toggleRowSelection(row, selected) {
       this.$refs.tableRef && this.$refs.tableRef.toggleRowSelection(row, selected);
     }

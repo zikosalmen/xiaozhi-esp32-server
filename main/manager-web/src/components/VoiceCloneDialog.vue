@@ -7,7 +7,7 @@
         @close="handleDialogClose"
     >
         <div class="dialog-content">
-            <!-- 步骤指示器 -->
+            <!-- section -->
             <div class="steps-header">
                 <div class="step-item" :class="{ 'active': currentStep === 1, 'completed': currentStep > 1 }">
                     <div class="step-number">
@@ -46,7 +46,7 @@
                         <p>{{ $t('voiceClone.editTip2') }}</p>
                     </div>
 
-                    <!-- 波形显示区域 -->
+                    <!-- section -->
                     <div class="waveform-container">
                         <canvas ref="waveformCanvas" class="waveform-canvas" @mousedown="handleWaveformMouseDown"
                             @mousemove="handleWaveformMouseMove" @mouseup="handleWaveformMouseUp"></canvas>
@@ -57,7 +57,7 @@
                         </div>
                     </div>
 
-                    <!-- 音频控制按钮 -->
+                    <!-- section -->
                     <div class="audio-controls">
                         <el-button size="small" :icon="isPlaying ? 'el-icon-video-pause' : 'el-icon-video-play'"
                             @click="togglePlay" type="primary">
@@ -72,7 +72,7 @@
                         </el-button>
                     </div>
 
-                    <!-- 音频元素 -->
+                    <!-- section -->
                     <audio ref="audioPlayer" @timeupdate="handleTimeUpdate" @ended="handleAudioEnded"
                         style="display: none;"></audio>
                 </div>
@@ -120,14 +120,14 @@ export default {
             originalAudioBuffer: null,
             isPlaying: false,
             uploading: false,
-            // 波形相关
+            // [text]
             waveformData: [],
-            // 选择相关
+            // [text]
             isSelecting: false,
             selectionStart: null,
             selectionEnd: null,
             mouseStartX: 0,
-            // 音频上下文
+            // [text]
             audioContext: null,
             audioSource: null,
         };
@@ -197,10 +197,10 @@ export default {
             this.audioFile = file.raw;
             this.originalAudioFile = file.raw;
 
-            // 先进入第二步,确保DOM已渲染
+            // [text],[text]DOM[text]
             this.currentStep = 2;
 
-            // 等待DOM更新后再加载音频
+            // [text]DOM[text]
             await this.$nextTick();
             await this.loadAudio(file.raw);
         },
@@ -213,15 +213,15 @@ export default {
                 this.audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer.slice(0));
                 this.originalAudioBuffer = await this.audioContext.decodeAudioData(await file.arrayBuffer());
 
-                // 设置音频播放器
+                // [text]
                 if (this.$refs.audioPlayer) {
                     const audioUrl = URL.createObjectURL(file);
                     this.$refs.audioPlayer.src = audioUrl;
-                    // 加载音频元数据
+                    // [text]
                     this.$refs.audioPlayer.load();
                 }
 
-                // 生成波形数据
+                // [text]
                 await this.generateWaveform();
             } catch (error) {
                 console.error('加载音频失败:', error);
@@ -238,7 +238,7 @@ export default {
                 return;
             }
 
-            // 设置canvas大小
+            // [text]canvas[text]
             const containerWidth = canvas.parentElement.offsetWidth;
             const containerHeight = canvas.parentElement.offsetHeight;
             canvas.width = containerWidth || 800;
@@ -271,22 +271,22 @@ export default {
             const width = canvas.width;
             const height = canvas.height;
 
-            // 清空画布
+            // [text]
             ctx.clearRect(0, 0, width, height);
 
-            // 绘制背景
+            // [text]
             ctx.fillStyle = '#e0f2ff';
             ctx.fillRect(0, 0, width, height);
 
             if (this.waveformData.length === 0) {
-                console.error('波形数据为空');
+                console.error('[debug]');
                 return;
             }
 
-            // 找到最大值用于归一化
+            // [text]
             const maxValue = Math.max(...this.waveformData);
 
-            // 绘制波形
+            // [text]
             ctx.fillStyle = '#4ade80';
             ctx.strokeStyle = '#4ade80';
             ctx.lineWidth = 1;
@@ -294,7 +294,7 @@ export default {
             const barWidth = width / this.waveformData.length;
 
             this.waveformData.forEach((value, index) => {
-                // 归一化并放大，使用80%的高度
+                // [text]，[text]80%[text]
                 const normalizedValue = maxValue > 0 ? value / maxValue : 0;
                 const barHeight = Math.max(1, normalizedValue * height * 0.8);
                 const x = index * barWidth;
@@ -328,7 +328,7 @@ export default {
             const start = Math.min(this.selectionStart, this.selectionEnd);
             const end = Math.max(this.selectionStart, this.selectionEnd);
 
-            // 创建新的音频buffer
+            // [text]buffer
             const duration = this.audioBuffer.duration;
             const startTime = start * duration;
             const endTime = end * duration;
@@ -352,14 +352,14 @@ export default {
 
             this.audioBuffer = newBuffer;
 
-            // 更新音频文件
+            // [text]
             await this.bufferToFile(newBuffer);
 
-            // 重置选择
+            // [text]
             this.selectionStart = null;
             this.selectionEnd = null;
 
-            // 重新生成波形
+            // [text]
             this.generateWaveform();
 
             this.$message.success(this.$t('voiceClone.trimSuccess'));
@@ -385,18 +385,18 @@ export default {
             }
         },
         handleTimeUpdate() {
-            // 可以在这里更新播放进度
+            // [text]
         },
         handleAudioEnded() {
             this.isPlaying = false;
         },
         async bufferToFile(buffer) {
-            // 将AudioBuffer转换为WAV文件
+            // [text]AudioBuffer[text]WAV[text]
             const wav = this.audioBufferToWav(buffer);
             const blob = new Blob([wav], { type: 'audio/wav' });
             this.audioFile = new File([blob], 'audio.wav', { type: 'audio/wav' });
 
-            // 更新播放器
+            // [text]
             await this.$nextTick();
             if (this.$refs.audioPlayer) {
                 const audioUrl = URL.createObjectURL(blob);
@@ -411,7 +411,7 @@ export default {
             let offset = 0;
             let pos = 0;
 
-            // 写入WAV文件头
+            // [text]WAV[text]
             const setUint16 = (data) => {
                 view.setUint16(pos, data, true);
                 pos += 2;
@@ -440,7 +440,7 @@ export default {
             setUint32(0x61746164); // "data"
             setUint32(length - pos - 4); // SubChunk2Size
 
-            // 写入音频数据
+            // [text]
             for (let i = 0; i < buffer.numberOfChannels; i++) {
                 channels.push(buffer.getChannelData(i));
             }
@@ -459,14 +459,14 @@ export default {
         },
         async handleNext() {
             if (this.currentStep === 1) {
-                // 验证是否已选择文件
+                // [text]
                 if (!this.audioFile) {
                     this.$message.warning(this.$t('voiceClone.pleaseSelectAudio'));
                     return;
                 }
                 this.currentStep = 2;
             } else {
-                // 上传音频
+                // [text]
                 await this.uploadAudio();
             }
         },
@@ -476,7 +476,7 @@ export default {
                 return;
             }
 
-            // 验证音频时长（8-60秒）
+            // [text]（8-60[text]）
             if (this.audioBuffer) {
                 const duration = this.audioBuffer.duration;
                 if (duration < 8 || duration > 60) {
@@ -512,7 +512,7 @@ export default {
         }
     },
     mounted() {
-        // 设置canvas大小
+        // [text]canvas[text]
         this.$nextTick(() => {
             const canvas = this.$refs.waveformCanvas;
             if (canvas) {

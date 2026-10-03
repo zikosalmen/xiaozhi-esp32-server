@@ -51,10 +51,10 @@
           <h3>{{ $t('cache.cssResources').replace('{count}', cacheData.css.length) }}</h3>
           <el-table :data="cacheData.css" stripe style="width: 100%">
             <el-table-column prop="url" label="URL" width="auto" show-overflow-tooltip />
-            <el-table-column prop="cached" label="状态" width="100">
+            <el-table-column prop="cached" :label="$t('cache.status')" width="100">
               <template slot-scope="scope">
-                <el-tag type="success" v-if="scope.row.cached">已缓存</el-tag>
-                <el-tag type="danger" v-else>未缓存</el-tag>
+                <el-tag type="success" v-if="scope.row.cached">{{ $t('cache.cached') }}</el-tag>
+                <el-tag type="danger" v-else>{{ $t('cache.notCached') }}</el-tag>
               </template>
             </el-table-column>
           </el-table>
@@ -110,27 +110,27 @@ export default {
       this.isLoading = true;
       
       try {
-        // 先检查是否支持缓存API
+        // [text]API
         if (!('caches' in window)) {
           this.cacheAvailable = false;
           this.isLoading = false;
           return;
         }
         
-        // 检查是否有Service Worker缓存
+        // [text]Service Worker[text]
         const cacheNames = await getCacheNames();
         this.cacheAvailable = cacheNames.length > 0;
         
         if (this.cacheAvailable) {
-          // 获取CDN缓存状态
+          // [text]CDN[text]
           this.cacheData = await checkCdnCacheStatus();
           
-          // 在控制台输出完整缓存状态
+          // [text]
           await logCacheStatus();
         }
       } catch (error) {
         console.error('加载缓存数据失败:', error);
-        this.$message.error('加载缓存数据失败');
+        this.$message.error(this.$t('message.error'));
       } finally {
         this.isLoading = false;
       }

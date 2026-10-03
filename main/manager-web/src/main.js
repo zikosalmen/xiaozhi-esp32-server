@@ -1,3 +1,4 @@
+import { translateBackendText } from './utils/translateBackendText';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'normalize.css/normalize.css'; // A modern alternative to CSS resets
 import Vue from 'vue';
@@ -11,18 +12,20 @@ import './styles/global.scss';
 import { register as registerServiceWorker } from './registerServiceWorker';
 import featureManager from './utils/featureManager';
 
-// 创建事件总线，用于组件间通信
+// [text]，[text]
 Vue.prototype.$eventBus = new Vue();
 
+Vue.prototype.$tBackend = translateBackendText;
+Vue.filter('translateBackend', translateBackendText);
 Vue.use(ElementUI);
 locale.i18n((key, value) => i18n.t(key, value))
 
 Vue.config.productionTip = false
 
-// 注册Service Worker
+// [text]Service Worker
 registerServiceWorker();
 
-// 创建Vue实例
+// [text]Vue[text]
 new Vue({
   router,
   store,

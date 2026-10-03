@@ -1708,4 +1708,7 @@ export default {
   'robot.keyboardTip': '支持键盘方向键或 W/A/S/D 控制，空格键紧急停止',
   'robot.commandSent': '指令发送成功',
   'robot.commandError': '指令发送失败',
+
+  'common.cannotConnect': '似乎无法连接服务器',
+  'common.connecting': '正在连接服务器',
 }

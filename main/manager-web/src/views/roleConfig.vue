@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="welcome">
     <HeaderBar />
 
@@ -361,7 +361,7 @@
                       </div>
                     </el-form-item>
                     <div class="model-row">
-                      <!-- 语言筛选器 -->
+                      <!-- section -->
                       <el-form-item class="model-item language-select-item">
                         <template #label>
                           <el-tooltip :content="$t('roleConfig.tooltip.language')" placement="top" effect="light" popper-class="custom-tooltip">
@@ -386,7 +386,7 @@
                         </div>
                       </el-form-item>
 
-                      <!-- 音色选择器 -->
+                      <!-- section -->
                       <el-form-item class="model-item">
                         <template #label>
                           <el-tooltip :content="$t('roleConfig.tooltip.voiceType')" placement="top" effect="light" popper-class="custom-tooltip">
@@ -551,7 +551,7 @@ export default {
       templates: [],
       loadingTemplate: false,
       voiceOptions: [],
-      voiceDetails: {}, // 保存完整的音色信息
+      voiceDetails: {}, // 保存完整的音色信// [comment]
       showFunctionDialog: false,
       currentVersionNo: null,
       currentFunctions: [],
@@ -562,9 +562,9 @@ export default {
       isPaused: false,
       currentAudio: null,
       currentPlayingVoiceId: null,
-      // 语言筛选相关状态
-      languageOptions: [], // 语言选项列表
-      selectedLanguage: '', // 当前选中的语言
+      // [text]
+      languageOptions: [], // 语言选项列// [comment]
+      selectedLanguage: '', // 当前选中的语// [comment]
       ttsLanguageTouched: false,
       ttsVoiceTouched: false,
       voiceFetchSeq: 0,
@@ -581,10 +581,10 @@ export default {
       currentVersionLoaded: false,
       pluginMetadataReady: false,
       pluginMetadataLoading: null,
-      // 功能状态
+      // [text]
       featureStatus: {
-        vad: false, // 语言检测活动功能状态
-        asr: false, // 语音识别功能状态
+        vad: false, // 语言检测活动功能状// [comment]
+        asr: false, // 语音识别功能状// [comment]
       },
       dynamicTags: [],
       originalTagNames: [],
@@ -672,7 +672,7 @@ export default {
       const submittedTtsVoiceId = configData.ttsVoiceId;
       const submittedVoiceFetchSeq = this.voiceFetchSeq;
 
-      // 只在用户设置了TTS参数时才传递（不为null/undefined）
+      // [text]TTS[text]（[text]null/undefined）
       if (this.form.ttsVolume !== null && this.form.ttsVolume !== undefined) {
         configData.ttsVolume = this.form.ttsVolume;
       }
@@ -1048,7 +1048,7 @@ export default {
                 }))
               );
 
-              // 如果是意图识别选项，需要根据当前LLM类型更新可见性
+              // [text]，[text]LLM[text]
               if (model.type === "Intent") {
                 this.updateIntentOptionsVisibility();
               }
@@ -1262,7 +1262,7 @@ export default {
       return languages[0] || "";
     },
     
-    // 根据语言筛选音色
+    // [text]
     filterVoicesByLanguage(options = {}) {
       if (!this.voiceDetails || Object.keys(this.voiceDetails).length === 0) {
         this.voiceOptions = [];
@@ -1271,11 +1271,11 @@ export default {
 
       const allVoices = Object.values(this.voiceDetails);
 
-      // 根据选中的语言筛选音色
+      // [text]
       const filteredVoices = allVoices.filter(voice => {
         const languagesArray = this.splitVoiceLanguages(voice);
         if (languagesArray.length === 0) {
-          // 未声明语言的合法音色由 provider 自行解释，不在前端强制过滤。
+          // [text] provider [text]，[text]。
           return true;
         }
         return languagesArray.includes(this.selectedLanguage);
@@ -1290,7 +1290,7 @@ export default {
         train_status: voice.trainStatus,
       }));
 
-      // 检查当前选中的音色是否支持当前语言，如果不支持则选择第一个
+      // [text]，[text]
       const currentVoiceSupportsLanguage = this.form.ttsVoiceId &&
         filteredVoices.some(voice => voice.id === this.form.ttsVoiceId);
 
@@ -1299,7 +1299,7 @@ export default {
         this.ttsVoiceTouched = true;
       }
 
-      // 同步到ttsSettings（如果值为null，使用0作为显示默认值，但不修改form中的值）
+      // [text]ttsSettings（[text]null，[text]0[text]，[text]form[text]）
       this.ttsSettings = {
         volume: this.form.ttsVolume !== null && this.form.ttsVolume !== undefined ? this.form.ttsVolume : 0,
         speed: this.form.ttsRate !== null && this.form.ttsRate !== undefined ? this.form.ttsRate : 0,
@@ -1338,7 +1338,7 @@ export default {
         }
       }
 
-      // 如果没有找到有效字符，返回第一个字符
+      // [text]，[text]
       return name.charAt(0);
     },
     showFunctionIcons(type) {
@@ -1354,10 +1354,10 @@ export default {
       }
       if (type === "Memory") {
         if (value === "Memory_nomem") {
-          // 无记忆功能的模型，默认不记录聊天记录
+          // [text]，[text]
           this.form.chatHistoryConf = 0;
         } else {
-          // 有记忆功能的模型，默认记录文本和语音
+          // [text]，[text]
           this.form.chatHistoryConf = 2;
         }
         if (value === "Memory_nomem" || value === "Memory_mem_report_only") {
@@ -1369,7 +1369,7 @@ export default {
         }
       }
       if (type === "LLM") {
-        // 当LLM类型改变时，更新意图识别选项的可见性
+        // [text]LLM[text]，[text]
         this.updateIntentOptionsVisibility();
       }
       if (type === "TTS") {
@@ -1470,7 +1470,7 @@ export default {
     handleTtsSettingsSave(settings) {
       const { replacementWordIds, changedTtsFields = [], ...ttsSettings } = settings;
       this.checkedReplacementWordIds = replacementWordIds;
-      // 保存TTS设置
+      // [text]TTS[text]
       this.ttsSettings = ttsSettings;
       const changedFields = new Set(changedTtsFields);
       if (changedFields.has("volume")) {
@@ -1498,7 +1498,7 @@ export default {
       this.showFunctionDialog = false;
     },
     updateIntentOptionsVisibility() {
-      // 根据当前选择的LLM类型更新意图识别选项的可见性
+      // [text]LLM[text]
       const currentLlmId = this.form.model.llmModelId;
       if (!currentLlmId || !this.modelOptions["Intent"]) return;
 
@@ -1507,76 +1507,76 @@ export default {
 
       this.modelOptions["Intent"].forEach((item) => {
         if (item.value === "Intent_function_call") {
-          // 如果llmType是openai或ollama，允许选择function_call
-          // 否则隐藏function_call选项
+          // [text]llmType[text]openai[text]ollama，[text]function_call
+          // [text]function_call[text]
           if (llmType === "openai" || llmType === "ollama") {
             item.isHidden = false;
           } else {
             item.isHidden = true;
           }
         } else {
-          // 其他意图识别选项始终可见
+          // [text]
           item.isHidden = false;
         }
       });
 
-      // 如果当前选择的意图识别是function_call，但LLM类型不支持，则设置为可选的第一项
+      // [text]function_call，[text]LLM[text]，[text]
       if (
         this.form.model.intentModelId === "Intent_function_call" &&
         llmType !== "openai" &&
         llmType !== "ollama"
       ) {
-        // 找到第一个可见的选项
+        // [text]
         const firstVisibleOption = this.modelOptions["Intent"].find(
           (item) => !item.isHidden
         );
         if (firstVisibleOption) {
           this.form.model.intentModelId = firstVisibleOption.value;
         } else {
-          // 如果没有可见选项，设置为Intent_nointent
+          // [text]，[text]Intent_nointent
           this.form.model.intentModelId = "Intent_nointent";
         }
       }
     },
-    // 检查是否有音频预览
+    // [text]
     hasAudioPreview(item) {
-      // 检查是否为克隆音频
-      // 使用后端实际返回的 isClone 字段
+      // [text]
+      // [text] isClone [text]
       const isCloneAudio = Boolean(item.isClone);
       
-      // 检查是否有有效的音频URL，只使用后端实际返回的字段
+      // [text]URL，[text]
       const hasValidAudioUrl = !!((item.voice_demo || item.voiceDemo)?.trim());
       
-      // 克隆音频始终显示播放按钮，普通音频需要有有效URL才显示
+      // [text]，[text]URL[text]
       return isCloneAudio || hasValidAudioUrl;
     },
 
-    // 播放/暂停音频切换
+    // [text]/[text]
     toggleAudioPlayback(voiceId) {
-      // 如果点击的是当前正在播放的音频，则切换暂停/播放状态
+      // [text]，[text]/[text]
       if (this.playingVoice && this.currentPlayingVoiceId === voiceId) {
         if (this.isPaused) {
-          // 从暂停状态恢复播放
+          // [text]
           this.currentAudio.play().catch((error) => {
             console.error("恢复播放失败:", error);
             this.$message.warning(this.$t('roleConfig.cannotResumeAudio'));
           });
           this.isPaused = false;
         } else {
-          // 暂停播放
+          // [text]
           this.currentAudio.pause();
           this.isPaused = true;
         }
         return;
       }
 
-      // 否则开始播放新的音频
+      // [text]
       this.playVoicePreview(voiceId);
     },
 
-    // 播放音色预览
+    // [text]
     playVoicePreview(voiceId = null) {
-      // 如果传入了voiceId，则使用传入的，否则使用当前选中的
+      // [text]voiceId，[text]，[text]
       const targetVoiceId = voiceId || this.form.ttsVoiceId;
 
       if (!targetVoiceId) {
@@ -1584,60 +1584,60 @@ export default {
         return;
       }
 
-      // 停止当前正在播放的音频
+      // [text]
       if (this.currentAudio) {
         this.currentAudio.pause();
         this.currentAudio = null;
       }
 
-      // 重置播放状态
+      // [text]
       this.isPaused = false;
       this.currentPlayingVoiceId = targetVoiceId;
 
       try {
-        // 从保存的音色详情中获取音频URL
+        // [text]URL
         const voiceDetail = this.voiceDetails[targetVoiceId];
 
-        // 添加调试信息
+        // [text]
         console.log("当前选择的音色ID:", targetVoiceId);
         console.log("音色详情:", voiceDetail);
 
-        // 尝试多种可能的音频属性名
+        // [text]
         let audioUrl = null;
         let isCloneAudio = false;
 
         if (voiceDetail) {
-          // 使用后端实际返回的 isClone 字段判断是否为克隆音频
+          // [text] isClone [text]
           isCloneAudio = Boolean(voiceDetail.isClone);
           console.log(
-            "克隆音频判断结果:",
+            "isCloneAudio result:",
             isCloneAudio,
-            "训练状态:",
+            "trainStatus:",
             voiceDetail.train_status
           );
 
-          // 获取音频URL
+          // [text]URL
           if (isCloneAudio && voiceDetail.id) {
-            // 对于克隆音频，使用后端提供的正确接口
-            // 注意：这里需要通过两步获取音频URL
-            // 1. 首先获取音频下载ID
-            // 2. 然后使用这个ID构建播放URL
-            // 由于异步操作，我们需要先请求getAudioId
+            // [text]，[text]
+            // [text]：[text]URL
+            // 1. [text]ID
+            // 2. [text]ID[text]URL
+            // [text]，[text]getAudioId
             console.log("检测到克隆音频，准备获取音频URL:", voiceDetail.id);
 
-            // 创建一个Promise来处理异步获取音频URL的操作
+            // [text]Promise[text]URL[text]
             const getCloneAudioUrl = () => {
               return new Promise((resolve) => {
-                // 首先调用getAudioId接口获取临时UUID
+                // [text]getAudioId[text]UUID
                 RequestService.sendRequest()
                   .url(`${getServiceUrl()}/voiceClone/audio/${voiceDetail.id}`)
                   .method("POST")
                   .success((res) => {
                     if (res.data.code === 0 && res.data.data) {
-                      // 处理返回的数据格式，在res.data基础上再套一层.data
+                      // [text]，[text]res.data[text].data
                       const audioId = res.data.data;
                       console.log("获取到的音频ID:", audioId);
-                      // 使用返回的UUID构建播放URL
+                      // [text]UUID[text]URL
                       const playUrl = `${getServiceUrl()}/voiceClone/play/${audioId}`;
                       console.log("构建克隆音频播放URL:", playUrl);
                       resolve(playUrl);
@@ -1654,22 +1654,22 @@ export default {
               });
             };
 
-            // 设置播放状态
+            // [text]
             this.playingVoice = true;
-            // 创建Audio实例
+            // [text]Audio[text]
             this.currentAudio = new Audio();
-            // 设置音量
+            // [text]
             this.currentAudio.volume = 1.0;
 
-            // 设置超时，防止加载过长时间
+            // [text]，[text]
             const timeoutId = setTimeout(() => {
               if (this.currentAudio && this.playingVoice) {
                 this.$message.warning(this.$t('roleConfig.audioLoadTimeout'));
                 this.playingVoice = false;
               }
-            }, 10000); // 10秒超时
+            }, 10000); // 10秒超// 10[comment]
 
-            // 监听播放错误
+            // [text]
             this.currentAudio.onerror = () => {
               clearTimeout(timeoutId);
               console.error("克隆音频播放错误");
@@ -1677,20 +1677,20 @@ export default {
               this.playingVoice = false;
             };
 
-            // 监听播放开始，清除超时
+            // [text]，[text]
             this.currentAudio.onplay = () => {
               clearTimeout(timeoutId);
             };
 
-            // 监听播放结束
+            // [text]
             this.currentAudio.onended = () => {
               this.playingVoice = false;
             };
 
-            // 处理异步获取URL并播放
+            // [text]URL[text]
             getCloneAudioUrl().then((url) => {
               if (url) {
-                // 设置音频URL并播放
+                // [text]URL[text]
                 this.currentAudio.src = url;
                 this.currentAudio.play().catch((error) => {
                   clearTimeout(timeoutId);
@@ -1705,16 +1705,16 @@ export default {
               }
             });
 
-            // 返回，避免继续执行下面的普通音频播放逻辑
+            // [text]，[text]
             return;
           } else {
-            // 对于普通音频，只使用后端实际返回的字段
+            // [text]，[text]
             audioUrl =
               voiceDetail.voiceDemo ||
               voiceDetail.voice_demo;
           }
 
-          // 如果没有找到，尝试检查是否有URL格式的字段
+          // [text]，[text]URL[text]
           if (!audioUrl) {
             for (const key in voiceDetail) {
               const value = voiceDetail[key];
@@ -1735,32 +1735,32 @@ export default {
         }
 
         if (!audioUrl) {
-          // 如果没有音频URL，显示友好的提示
+          // [text]URL，[text]
           this.$message.warning(this.$t('roleConfig.noPreviewAudio'));
           return;
         }
 
-        // 非克隆音频的处理逻辑
+        // [text]
         if (!isCloneAudio) {
-          // 设置播放状态
+          // [text]
           this.playingVoice = true;
 
-          // 创建并播放音频
+          // [text]
           this.currentAudio = new Audio();
           this.currentAudio.src = audioUrl;
 
-          // 设置音量
+          // [text]
           this.currentAudio.volume = 1.0;
 
-          // 设置超时，防止加载过长时间
+          // [text]，[text]
           const timeoutId = setTimeout(() => {
             if (this.currentAudio && this.playingVoice) {
               this.$message.warning(this.$t('roleConfig.audioLoadTimeout'));
               this.playingVoice = false;
             }
-          }, 10000); // 10秒超时
+          }, 10000); // 10秒超// 10[comment]
 
-          // 监听播放错误
+          // [text]
           this.currentAudio.onerror = () => {
             clearTimeout(timeoutId);
             console.error("音频播放错误");
@@ -1768,17 +1768,17 @@ export default {
             this.playingVoice = false;
           };
 
-          // 监听播放开始，清除超时
+          // [text]，[text]
           this.currentAudio.onplay = () => {
             clearTimeout(timeoutId);
           };
 
-          // 监听播放结束
+          // [text]
           this.currentAudio.onended = () => {
             this.playingVoice = false;
           };
 
-          // 开始播放音频
+          // [text]
           this.currentAudio.play().catch((error) => {
             clearTimeout(timeoutId);
             console.error("播放失败:", error);
@@ -1797,10 +1797,10 @@ export default {
         this.form.chatHistoryConf = 0;
       }
     },
-    // 加载功能状态
+    // [text]
     async loadFeatureStatus() {
       try {
-        // 确保featureManager已初始化完成
+        // [text]featureManager[text]
         await featureManager.waitForInitialization();
         const config = featureManager.getConfig();
         this.featureStatus.voiceprintRecognition = config.voiceprintRecognition || false;
@@ -1906,7 +1906,7 @@ export default {
     }
     this.fetchModelOptions();
     this.fetchTemplates();
-    // 加载功能状态，确保featureManager已初始化
+    // [text]，[text]featureManager[text]
     await this.loadFeatureStatus();
   },
 };

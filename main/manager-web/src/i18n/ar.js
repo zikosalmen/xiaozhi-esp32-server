@@ -6,7 +6,7 @@ export default {
   'login.requiredMobile': 'الرجاء إدخال رقم هاتف محمول صالح',
   'login.loginSuccess': 'تم تسجيل الدخول بنجاح!',
 
-  // HeaderBar组件文本
+  // HeaderBar[text]
   'header.smartManagement': 'الوكلاء',
   'header.modelConfig': 'نماذج',
   'header.knowledgeBase': 'معرفة',
@@ -1708,4 +1708,25 @@ export default {
   'robot.keyboardTip': 'الأسهم أو W/A/S/D للحركة، ومسافة للتوقف',
   'robot.commandSent': 'تم إرسال الأمر بنجاح',
   'robot.commandError': 'فشل إرسال الأمر',
+  'common.selection': 'اختيار',
+  'viewPassword.title': 'كلمة مرور المستخدم الجديدة',
+  'viewPassword.label': 'كلمة مرور المستخدم الجديدة:',
+  'viewPassword.close': 'إغلاق',
+  'viewPassword.copy': 'نسخ كلمة المرور',
+  'viewPassword.copied': 'تم نسخ كلمة المرور',
+  'agentTemplateManagement.fetchTemplateFailed': 'فشل تحميل القالب',
+  'common.noData': 'لا توجد بيانات',
+  'featureManagement.saveError': 'فشل الحفظ، يرجى المحاولة مرة أخرى',
+  'message.searchFailed': 'فشل البحث',
+  'modelConfig.modelConfig': 'تكوين النموذج',
+  'otaManagement.invalidFirmwareId': 'معرف البرنامج الثابت غير صالح',
+  'ttsModel.getVoiceListFailed': 'فشل تحميل قائمة الأصوات',
+  'ttsModel.invalidVoiceId': 'معرف الصوت غير صالح',
+  'ttsModel.loadVoiceDataFailed': 'فشل تحميل بيانات الصوت',
+  'ttsModel.saveFailed': 'فشل الحفظ',
+  'ttsModel.updateFailed': 'فشل التحديث',
+  'voiceClone.audioNotExist': 'ملف الصوت غير موجود',
+
+  'common.cannotConnect': 'تعذر الاتصال بالخادم',
+  'common.connecting': 'جارٍ الاتصال بالخادم',
 }

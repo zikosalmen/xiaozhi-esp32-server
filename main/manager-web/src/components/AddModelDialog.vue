@@ -9,7 +9,7 @@
     @confirm="confirm"
   >
     <div class="dialog-content">
-      <!-- 模型信息部分 -->
+      <!-- section -->
       <div class="section-header">
         <div class="section-title">{{ $t('modelConfigDialog.modelInfo') }}</div>
         <div class="switch-group">
@@ -161,7 +161,7 @@ export default {
             label: f.label,
             prop: f.key,
             type: f.type === 'password' ? 'password' : 'text',
-            placeholder: `请输入${f.key}`
+            placeholder: `${f.key}`
           }))
         }))
         this.providersLoaded = true
@@ -190,7 +190,7 @@ export default {
     confirm() {
       this.saving = true;
 
-      // 校验模型ID不能为纯文字或空格
+      // [text]ID[text]
       if (this.formData.id && !this.validateModelId(this.formData.id)) {
         this.$message.error(this.$t('modelConfigDialog.invalidModelId'));
         this.saving = false;
@@ -244,39 +244,39 @@ export default {
         isDefault: true,
         configJson: {}
       };
-      // 重置加载状态
+      // [text]
       this.providers = [];
       this.providersLoaded = false;
-      // 重置字段配置
+      // [text]
       this.providerFields = [];
       this.currentProvider = null;
     },
     
-    // 校验模型ID：不能为纯文字或空格
+    // [text]ID：[text]
     validateModelId(modelId) {
       if (!modelId || typeof modelId !== 'string') {
         return false;
       }
       
-      // 去除首尾空格
+      // [text]
       const trimmedId = modelId.trim();
       
-      // 检查是否为空或纯空格
+      // [text]
       if (trimmedId === '') {
         return false;
       }
       
-      // 检查是否只包含字母（纯文字）
+      // [text]（[text]）
       if (/^[a-zA-Z]+$/.test(trimmedId)) {
         return false;
       }
       
-      // 检查是否包含空格
+      // [text]
       if (/\s/.test(trimmedId)) {
         return false;
       }
       
-      // 允许字母、数字、下划线、连字符
+      // [text]、[text]、[text]、[text]
       if (!/^[a-zA-Z0-9_-]+$/.test(trimmedId)) {
         return false;
       }

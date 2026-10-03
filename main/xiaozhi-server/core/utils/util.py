@@ -598,12 +598,23 @@ def validate_mcp_endpoint(mcp_endpoint: str) -> bool:
     return True
 
 def get_system_error_response(config: dict) -> str:
-    """获取系统错误时的回复
+    """获取系统错误时的回复 / Obtenir la réponse en cas d'erreur système"""
+    if "system_error_response" in config and config["system_error_response"]:
+        return config["system_error_response"]
 
-    Args:
-        config: 配置字典
+    tts_dict = config.get("TTS", {})
+    selected_tts = config.get("selected_module", {}).get("TTS", "") if isinstance(config.get("selected_module"), dict) else ""
+    tts_cfg = tts_dict.get(selected_tts, {}) if isinstance(tts_dict, dict) else {}
+    if not tts_cfg and isinstance(tts_dict, dict) and tts_dict:
+        first_val = next(iter(tts_dict.values()), None)
+        if isinstance(first_val, dict):
+            tts_cfg = first_val
 
-    Returns:
-        str: 系统错误时的回复
-    """
-    return config.get("system_error_response", "主人，小智现在有点忙，我们稍后再试吧。")
+    lang = str(tts_cfg.get("language") or config.get("language") or "").lower()
+    voice = str(tts_cfg.get("voice", "")).lower()
+    if any(z in lang for z in ["zh", "中文", "chinese"]) or voice.startswith("zh-"):
+        return "主人，小智现在有点忙，我们稍后再试吧。"
+    elif any(e in lang for e in ["en", "english"]) or voice.startswith("en-"):
+        return "Sorry, I'm having trouble right now. Please try again in a moment."
+    else:
+        return "Désolé, je rencontre une petite difficulté pour le moment. Réessayons dans un instant."
