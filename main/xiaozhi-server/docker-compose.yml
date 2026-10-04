@@ -1,4 +1,4 @@
-# Docker安装全模块 - Hbiba ESP32 Server
+﻿# Docker安装全模块 - Hbiba ESP32 Server
 
 services:
   # ===== Server IA principal (Hbiba) =====
@@ -14,24 +14,19 @@ services:
     networks:
       - default
     ports:
-      # WebSocket principal
       - "8000:8000"
-      # HTTP (OTA + vision)
       - "8003:8003"
     security_opt:
       - seccomp:unconfined
     environment:
       - TZ=UTC
     volumes:
-      # Fichiers de configuration
       - ./data:/opt/xiaozhi-esp32-server/data
-      # Fonctions personnalisées (robot_control.py, etc.)
       - ./plugins_func:/opt/xiaozhi-esp32-server/plugins_func
-      # Core et serveur HTTP/WebSocket (commandes robot, etc.)
       - ./core:/opt/xiaozhi-esp32-server/core
       - ./app.py:/opt/xiaozhi-esp32-server/app.py
 
-  # ===== Dashboard Web (智控台) - port 8002 =====
+  # ===== Dashboard Web - expose interne seulement (nginx route vers lui) =====
   hbiba-esp32-server-web:
     image: ghcr.io/xinnan-tech/xiaozhi-esp32-server:web_latest
     container_name: hbiba-esp32-server-web
@@ -43,8 +38,8 @@ services:
         condition: service_healthy
       hbiba-esp32-server-redis:
         condition: service_healthy
-    ports:
-      - "8002:8002"
+    expose:
+      - 8002
     environment:
       - TZ=UTC
       - SPRING_DATASOURCE_DRUID_URL=jdbc:mysql://hbiba-esp32-server-db:3306/xiaozhi_esp32_server?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&nullCatalogMeansCurrent=true&connectTimeout=30000&socketTimeout=30000&autoReconnect=true&failOverReadOnly=false&maxReconnects=10
@@ -56,7 +51,7 @@ services:
     volumes:
       - ./uploadfile:/uploadfile
 
-  # ===== Base de données MySQL =====
+  # ===== MySQL =====
   hbiba-esp32-server-db:
     image: mysql:latest
     container_name: hbiba-esp32-server-db
@@ -78,7 +73,7 @@ services:
       - MYSQL_DATABASE=xiaozhi_esp32_server
       - MYSQL_ROOT_HOST=%
 
-  # ===== Redis cache =====
+  # ===== Redis =====
   hbiba-esp32-server-redis:
     image: redis:8.0
     container_name: hbiba-esp32-server-redis
@@ -92,6 +87,24 @@ services:
       retries: 3
     networks:
       - default
+
+  # ===== Nginx - Point d'entree Cloudflare (port 80) =====
+  # Cloudflare (HTTPS) -> ce container (HTTP:80)
+  # /xiaozhi/*  -> hbiba-esp32-server:8003  (Python IA + robot)
+  # /*          -> hbiba-esp32-server-web:8002  (Dashboard Java)
+  hbiba-nginx:
+    image: nginx:alpine
+    container_name: hbiba-nginx
+    restart: always
+    networks:
+      - default
+    depends_on:
+      - hbiba-esp32-server
+      - hbiba-esp32-server-web
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/conf.d/default.conf:ro
 
 networks:
   default:
