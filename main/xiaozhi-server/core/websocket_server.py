@@ -192,7 +192,8 @@ class WebSocketServer:
             host,
             port,
             process_request=self._http_response,
-            ping_interval=None,
+            ping_interval=20,   # envoie un ping toutes les 20s (garde Cloudflare vivant)
+            ping_timeout=10,    # si pas de pong en 10s → ferme proprement
         ):
             await asyncio.Future()
 
