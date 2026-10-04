@@ -147,34 +147,23 @@ class WebSocketServer:
 
         for conn in targets:
             try:
-                # 1. 尝试 server-side MCP client (若连接已初始化 mcp_client)
-                if (
-                    hasattr(conn, "mcp_client")
-                    and conn.mcp_client
-                    and hasattr(conn.mcp_client, "has_tool")
-                ):
-                    from core.providers.tools.device_mcp import call_mcp_tool
-                    import json as _json
-
-                    # Internal tool names use underscores (sanitized), MCP names use dots
-                    tool_name_internal = "self_robot_stop" if is_stop else "self_robot_move"
-                    if conn.mcp_client.has_tool(tool_name_internal):
-                        await call_mcp_tool(
-                            conn,
-                            conn.mcp_client,
-                            tool_name_internal,
-                            _json.dumps(arguments),
-                        )
-                        sent_count += 1
-                        continue
-
-                # 2. Fallback: envoyer le message MCP JSON-RPC directement via WebSocket
+                # Envoi direct via WebSocket — format {"type":"mcp","payload":{JSON-RPC 2.0}}
+                # L'ESP32 traite ce message dans application.cc via McpServer::ParseMessage
+                # On n'attend PAS de réponse (fire-and-forget) pour éviter les timeouts
                 if conn.websocket and hasattr(conn.websocket, "send"):
                     await conn.websocket.send(payload_str)
+                    self.logger.bind(tag=TAG).info(
+                        f"Robot command sent: {tool_name_mcp} {arguments} -> {conn.websocket}"
+                    )
                     sent_count += 1
+                else:
+                    self.logger.bind(tag=TAG).warning(
+                        f"Robot: conn has no active websocket"
+                    )
             except Exception as e:
                 errors.append(str(e))
                 self.logger.bind(tag=TAG).error(f"发送机器人指令失败: {e}")
+
 
         return {
             "sent_count": sent_count,
