@@ -1,4 +1,4 @@
-﻿# Docker安装全模块 - Hbiba ESP32 Server
+# Docker安装全模块 - Hbiba ESP32 Server
 
 services:
   # ===== Server IA principal (Hbiba) =====
@@ -103,6 +103,7 @@ services:
       - hbiba-esp32-server-web
     ports:
       - "80:80"
+      - "8002:8002"
     volumes:
       - ./nginx-proxy.conf:/etc/nginx/conf.d/default.conf:ro
 
