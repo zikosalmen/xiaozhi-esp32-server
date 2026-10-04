@@ -88,59 +88,87 @@ class WebSocketServer:
         speed: int = 80,
         duration_ms: int = 1500,
         device_id: str = None,
+        extra: dict = None,
     ) -> dict:
-        """向已连接的 ESP32 发送底盘电机控制指令"""
+        """向已连接的 ESP32 发送底盘电机控制指令 (via MCP JSON-RPC 2.0)"""
         import json
 
         is_stop = direction == "stop"
-        command = {
-            "type": "iot",
-            "commands": [
-                {
-                    "name": "robot",
-                    "method": "stop" if is_stop else "move",
-                    "parameters": {}
-                    if is_stop
-                    else {
-                        "direction": direction,
-                        "speed": speed,
-                        "duration_ms": duration_ms,
-                    },
-                }
-            ],
+
+        # Build MCP JSON-RPC 2.0 tools/call message wrapped in {"type":"mcp","payload":{...}}
+        # Tool names registered in motor_controller.h: "self.robot.move" / "self.robot.stop"
+        tool_name_mcp = "self.robot.stop" if is_stop else "self.robot.move"
+        arguments = (
+            {}
+            if is_stop
+            else {
+                "direction": direction,
+                "speed": speed,
+                "duration_ms": duration_ms,
+            }
+        )
+        # Incrementing call ID per instance
+        if not hasattr(self, "_robot_call_id"):
+            self._robot_call_id = 1
+        call_id = self._robot_call_id
+        self._robot_call_id += 1
+
+        mcp_payload = {
+            "jsonrpc": "2.0",
+            "id": call_id,
+            "method": "tools/call",
+            "params": {
+                "name": tool_name_mcp,
+                "arguments": arguments,
+            },
         }
-        payload_str = json.dumps(command)
+        # Wrap in the envelope the ESP32 application.cc expects for type=="mcp"
+        ws_message = {
+            "type": "mcp",
+            "payload": mcp_payload,
+        }
+        payload_str = json.dumps(ws_message)
+
         sent_count = 0
         errors = []
 
         targets = []
-        if device_id and device_id in self.active_connections:
-            targets = [self.active_connections[device_id]]
+        if device_id:
+            device_id_lower = device_id.lower()
+            if device_id_lower in self.active_connections:
+                targets = [self.active_connections[device_id_lower]]
+            elif device_id in self.active_connections:
+                targets = [self.active_connections[device_id]]
+            else:
+                # Pas de device trouvé avec cet ID, broadcaster à tous
+                targets = list(self.active_connections.values())
         else:
             targets = list(self.active_connections.values())
 
         for conn in targets:
             try:
-                # 1. 尝试 MCP
-                if hasattr(conn, "mcp_client") and conn.mcp_client:
+                # 1. 尝试 server-side MCP client (若连接已初始化 mcp_client)
+                if (
+                    hasattr(conn, "mcp_client")
+                    and conn.mcp_client
+                    and hasattr(conn.mcp_client, "has_tool")
+                ):
                     from core.providers.tools.device_mcp import call_mcp_tool
+                    import json as _json
 
-                    tool_name = "self_robot_stop" if is_stop else "self_robot_move"
-                    if conn.mcp_client.has_tool(tool_name):
-                        params = (
-                            {}
-                            if is_stop
-                            else {
-                                "direction": direction,
-                                "speed": speed,
-                                "duration_ms": duration_ms,
-                            }
+                    # Internal tool names use underscores (sanitized), MCP names use dots
+                    tool_name_internal = "self_robot_stop" if is_stop else "self_robot_move"
+                    if conn.mcp_client.has_tool(tool_name_internal):
+                        await call_mcp_tool(
+                            conn,
+                            conn.mcp_client,
+                            tool_name_internal,
+                            _json.dumps(arguments),
                         )
-                        await call_mcp_tool(conn, tool_name, params)
                         sent_count += 1
                         continue
 
-                # 2. WebSocket 发送
+                # 2. Fallback: envoyer le message MCP JSON-RPC directement via WebSocket
                 if conn.websocket and hasattr(conn.websocket, "send"):
                     await conn.websocket.send(payload_str)
                     sent_count += 1
